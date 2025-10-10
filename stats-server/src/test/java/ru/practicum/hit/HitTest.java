@@ -40,7 +40,7 @@ class HitTest {
 
         Hit savedHit = entityManager.persistFlushFind(hitToPersist);
 
-        
+
         assertNotNull(savedHit.getId(), "ID should be generated");
         assertEquals("/event/1", savedHit.getUri());
         assertEquals("app1", savedHit.getApp());
