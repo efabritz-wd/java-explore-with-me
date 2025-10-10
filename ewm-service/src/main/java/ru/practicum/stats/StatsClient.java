@@ -7,14 +7,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.HitDto;
 import ru.practicum.client.BaseClient;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @Service
 public class StatsClient extends BaseClient {
@@ -48,7 +44,6 @@ public class StatsClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "start", start.format(FORMATTER),
                 "end", end.format(FORMATTER),
-               // "uris", Arrays.asList(uris.split(",")),
                 "uris", uris,
                 "unique", unique
         );
