@@ -13,8 +13,9 @@ import ru.practicum.service.HitService;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -32,15 +33,14 @@ public class HitController {
     @GetMapping("/stats")
     public List<StatsProjection> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                          @RequestParam String uris,
+                                          @RequestParam(required = false) String uris,
                                           @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Fetching stats from {} to {}, uris: {}, unique: {}", start, end, uris, unique);
 
+        List<String> urisList = (uris != null) ? Stream.of(uris.split(","))
+                .map(uri -> UriUtils.decode(uri, StandardCharsets.UTF_8))
+                .toList() : Collections.emptyList();
 
-        String uriDecoded = UriUtils.decode(uris, StandardCharsets.UTF_8);
-        log.info("Fetching stats from {} to {}, uris: {}, unique: {}", start, end, uriDecoded, unique);
-
-        List<String> urisList = Arrays.asList(uriDecoded.split(","));
         log.info("Decoded URIs: {}", urisList);
         return hitService.getStats(start, end, urisList, unique);
     }

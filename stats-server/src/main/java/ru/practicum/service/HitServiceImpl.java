@@ -39,6 +39,8 @@ public class HitServiceImpl implements HitService {
         if (start.isAfter(end)) {
             throw new ValidationException("Start date should be before end date");
         }
-        return hitRepository.findHitsByTimeRangeAndUris(start, end, uris, unique);
+
+        return uris.isEmpty() ? hitRepository.findHitsByTimeRange(start, end, unique) :
+                hitRepository.findHitsByTimeRangeAndUris(start, end, uris, unique);
     }
 }

@@ -15,10 +15,23 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "AND h.uri IN :uris " +
-            "GROUP BY h.app, h.uri")
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits DESC")
     List<StatsProjection> findHitsByTimeRangeAndUris(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("uris") List<String> uris,
+            @Param("unique") boolean unique);
+
+
+    @Query("SELECT h.app AS app, h.uri AS uri, " +
+            "CASE WHEN :unique = true THEN COUNT(DISTINCT h.ip) ELSE COUNT(h) END AS hits " +
+            "FROM Hit h " +
+            "WHERE h.timestamp BETWEEN :start AND :end " +
+            "GROUP BY h.app, h.uri " +
+            "ORDER BY hits DESC")
+    List<StatsProjection> findHitsByTimeRange(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             @Param("unique") boolean unique);
 }
