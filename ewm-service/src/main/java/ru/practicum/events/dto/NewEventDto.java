@@ -1,7 +1,9 @@
 package ru.practicum.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,22 +24,23 @@ public class NewEventDto {
     @Size(min = 20, max = 2000, message = "Annotation must be between 20 and 2000 characters")
     private String annotation;
 
-    @NotBlank
+    @NotNull
     private Long category;
 
     @NotBlank
     @Size(min = 20, max = 7000, message = "Description must be between 20 and 7000 characters")
     private String description;
 
-    @NotBlank
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    @NotBlank
+    @NotNull
     private Location location;
 
     private Boolean paid = false;
 
+    @Min(value = 0, message = "Participant limit must be 0 or greater")
     private Integer participantLimit = 0;
 
     private Boolean requestModeration = true;

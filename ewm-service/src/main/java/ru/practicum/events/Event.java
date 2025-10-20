@@ -1,6 +1,7 @@
 package ru.practicum.events;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -58,6 +59,7 @@ public class Event {
     private Boolean paid;
 
     @Column(name = "participant_limit")
+    @Min(value = 0, message = "Participant limit must be 0 or greater")
     private Integer participantLimit = 0;
 
     @Column(name = "published_on")

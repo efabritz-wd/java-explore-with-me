@@ -1,5 +1,6 @@
 package ru.practicum.events;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +23,14 @@ public class EventAdminController {
                                                    @RequestParam List<Long> categories,
                                                    @RequestParam LocalDateTime rangeStart,
                                                    @RequestParam LocalDateTime rangeEnd,
-                                                   @RequestParam(defaultValue = "0") Integer from,
-                                                   @RequestParam(defaultValue = "10") Integer size) {
+                                                   @RequestParam(defaultValue = "0", required = false) Integer from,
+                                                   @RequestParam(defaultValue = "10", required = false) Integer size) {
         return eventService.getAllFilteredEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateFilteredEvent(@PathVariable Long eventId,
-                                            @RequestBody UpdateEventAdminRequest eventUpdateDto) {
+                                            @Valid @RequestBody UpdateEventAdminRequest eventUpdateDto) {
         return eventService.updateFilteredEvent(eventId, eventUpdateDto);
     }
 }

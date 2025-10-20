@@ -1,7 +1,9 @@
 package ru.practicum.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,7 @@ public class EventFullDto {
     @NotBlank
     private String annotation;
 
-    @NotBlank
+    @NotNull
     private CategoryDto category;
 
     private Integer confirmedRequests;
@@ -34,19 +36,20 @@ public class EventFullDto {
 
     private String description;
 
-    @NotBlank
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    @NotBlank
+    @NotNull
     private UserShortDto initiator;
 
-    @NotBlank
+    @NotNull
     private Location location;
 
-    @NotBlank
+    @NotNull
     private Boolean paid;
 
+    @Min(value = 0, message = "Participant limit must be 0 or greater")
     private Integer participantLimit = 0;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
