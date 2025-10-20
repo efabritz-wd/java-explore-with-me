@@ -1,6 +1,7 @@
 package ru.practicum.categories;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
     private final EventsRepository eventsRepository;
 
     @Override
-    @Transactional
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
         if (newCategoryDto.getName().isBlank()) {
             throw new CommonBadRequestException("Field: name. Error: must not be blank. Value: null");
@@ -43,13 +44,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toCategoryFromNewDto(newCategoryDto);
         Category categorySaved = categoryRepository.save(category);
+        log.info("Category created: " + categorySaved);
         CategoryDto categoryDto = categoryMapper.toCategoryDto(categorySaved);
 
         return categoryDto;
     }
 
     @Override
-    @Transactional
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
         if (categoryRepository.findById(catId).isEmpty()) {
             throw new CommonNotFoundException("Category with id="
@@ -65,6 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category categoryFound = categoryRepository.findById(catId).get();
         categoryFound.setName(categoryDto.getName());
         Category categorySaved = categoryRepository.save(categoryFound);
+        log.info("Category updated: " + categorySaved);
         CategoryDto categorySavedDto = categoryMapper.toCategoryDto(categorySaved);
         return categorySavedDto;
     }
@@ -80,6 +82,8 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CommonConflictException("Event for category " + catId + " exists.");
         }
         categoryRepository.deleteById(catId);
+        log.info("Deleted category with id: " + catId);
+
     }
 
     @Override
@@ -89,6 +93,7 @@ public class CategoryServiceImpl implements CategoryService {
                     + id + " was not found");
         }
         Category category = categoryRepository.findById(id).get();
+        log.info("Category found: " + category);
         CategoryDto categoryDto = categoryMapper.toCategoryDto(category);
         return categoryDto;
     }
@@ -98,6 +103,8 @@ public class CategoryServiceImpl implements CategoryService {
         Pageable pageable = PageRequest.of(from / size, size);
 
         List<Category> categories = categoryRepository.findAll(pageable).getContent();
+
+        log.info("Categories found: " + categories);
 
         return categories.stream()
                 .map(category -> new CategoryDto(category.getId(), category.getName()))

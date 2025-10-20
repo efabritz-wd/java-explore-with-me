@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
 import ru.practicum.categories.Category;
 import ru.practicum.categories.CategoryMapper;
@@ -32,6 +33,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EventServiceImpl implements EventService {
     private final EventsRepository eventsRepository;
     private final EventMapper eventMapper;
