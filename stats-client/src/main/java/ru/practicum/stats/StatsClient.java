@@ -23,7 +23,6 @@ public class StatsClient extends BaseClient {
 
     @Autowired
     public StatsClient(@Value("http://stats-server:9090") String serverUrl) {
-
         super(serverUrl);
     }
 
