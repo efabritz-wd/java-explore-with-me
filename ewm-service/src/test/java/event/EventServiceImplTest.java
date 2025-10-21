@@ -333,7 +333,7 @@ class EventServiceImplTest {
         event.setPublishedOn(LocalDateTime.now());
         when(eventsRepository.findByIdAndInitiatorId(1L, 1L)).thenReturn(Optional.of(event));
 
-        assertThrows(CommonBadRequestException.class, () ->
+        assertThrows(CommonConflictException.class, () ->
                 eventService.updateEventByUserAndEventIds(1L, 1L, updateEventUserRequest));
     }
 
