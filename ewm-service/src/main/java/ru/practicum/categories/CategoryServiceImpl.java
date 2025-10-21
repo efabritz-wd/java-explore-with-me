@@ -78,9 +78,10 @@ public class CategoryServiceImpl implements CategoryService {
                     + catId + " was not found");
         }
 
-        if (eventsRepository.existsByCategoryId(catId)) {
+        if (!eventsRepository.findAllByCategoryId(catId).isEmpty()) {
             throw new CommonConflictException("Event for category " + catId + " exists.");
         }
+
         categoryRepository.deleteById(catId);
         log.info("Deleted category with id: " + catId);
 

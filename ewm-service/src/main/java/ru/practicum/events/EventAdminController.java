@@ -18,11 +18,11 @@ public class EventAdminController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventFullDto> getAllFilteredEvents(@RequestParam List<Long> users,
-                                                   @RequestParam List<String> states,
-                                                   @RequestParam List<Long> categories,
-                                                   @RequestParam LocalDateTime rangeStart,
-                                                   @RequestParam LocalDateTime rangeEnd,
+    public List<EventFullDto> getAllFilteredEvents(@RequestParam(required = false) List<Long> users,
+                                                   @RequestParam(required = false)  List<String> states,
+                                                   @RequestParam(required = false)  List<Long> categories,
+                                                   @RequestParam(required = false)  LocalDateTime rangeStart,
+                                                   @RequestParam(required = false)  LocalDateTime rangeEnd,
                                                    @RequestParam(defaultValue = "0", required = false) Integer from,
                                                    @RequestParam(defaultValue = "10", required = false) Integer size) {
         return eventService.getAllFilteredEvents(users, states, categories, rangeStart, rangeEnd, from, size);

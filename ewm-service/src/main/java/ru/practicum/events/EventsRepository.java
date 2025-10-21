@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +16,14 @@ import java.util.Optional;
 public interface EventsRepository extends JpaRepository<Event, Long> {
     Boolean existsByCategoryId(Long id);
 
+    @Query("SELECT e FROM Event e WHERE e.category.id = :id")
+    List<Event> findAllByCategoryId(@Param("id") Long id);
+
     @Query("SELECT e FROM Event e " +
             "WHERE e.state = 'PUBLISHED' " +
             "AND (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
-            "AND (e.category.id IN :categories) " +
-            "AND (e.paid = :paid) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (:paid IS NULL OR e.paid = :paid) " +
             "AND (e.eventDate BETWEEN :rangeStart AND :rangeEnd) " +
             "AND (:onlyAvailable = FALSE OR e.participantLimit = 0 OR e.confirmedRequests < e.participantLimit)")
     List<Event> findPublicFilteredEvents(
@@ -33,8 +37,8 @@ public interface EventsRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e " +
             "WHERE e.state = 'PUBLISHED' " +
             "AND (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
-            "AND (e.category.id IN :categories) " +
-            "AND (e.paid = :paid) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (:paid IS NULL OR e.paid = :paid) " +
             "AND (e.eventDate > :date) " +
             "AND (:onlyAvailable = FALSE OR e.participantLimit = 0 OR e.confirmedRequests < e.participantLimit)")
     List<Event> findPublicFilteredEventsAfterNow(
@@ -46,12 +50,11 @@ public interface EventsRepository extends JpaRepository<Event, Long> {
             Pageable pageable);
 
     @Query("SELECT e FROM Event e " +
-            "WHERE (e.initiator.id IN :users) " +
-            "AND (e.state IN :states) " +
-            "AND (e.category.id IN :categories) " +
-            "AND (e.eventDate >= :rangeStart) " +
-            "AND (e.eventDate <= :rangeEnd) " +
-            "ORDER BY e.id")
+            "WHERE (:users IS NULL OR e.initiator.id IN :users) " +
+            "AND (:states IS NULL OR e.state IN :states) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (cast(:rangeStart as timestamp) IS NULL OR e.eventDate >= :rangeStart) " +
+            "AND (cast(:rangeEnd as timestamp) IS NULL OR e.eventDate <= :rangeEnd)")
     List<Event> getAllFilteredEvents(
             @Param("users") List<Long> users,
             @Param("states") List<String> states,

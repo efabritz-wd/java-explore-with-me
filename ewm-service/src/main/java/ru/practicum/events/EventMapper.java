@@ -163,7 +163,7 @@ public class EventMapper {
             category.setId(newEventDto.getCategory());
             event.setCategory(category);
         }
-        event.setDescription(newEventDto.getDescription());
+        event.setAnnotation(newEventDto.getAnnotation());
         event.setEventDate(newEventDto.getEventDate());
         event.setLocation(newEventDto.getLocation());
         event.setPaid(newEventDto.getPaid());

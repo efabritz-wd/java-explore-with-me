@@ -15,6 +15,8 @@ import ru.practicum.errors.CommonNotFoundException;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.NewEventDto;
+import ru.practicum.locations.Location;
+import ru.practicum.locations.LocationRepository;
 import ru.practicum.requests.*;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 
@@ -25,6 +27,7 @@ import ru.practicum.users.User;
 import ru.practicum.users.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,11 +45,72 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final LocationRepository locationRepository;
     private final StatsClient statsClient;
 
+    /*
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Event> query = cb.createQuery(Event.class);
+        Root<Event> event = query.from(Event.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        // Filter by users
+        if (users != null && !users.isEmpty()) {
+            predicates.add(event.get("initiator").get("id").in(users));
+        }
+
+        // Filter by states
+        if (states != null && !states.isEmpty()) {
+            predicates.add(event.get("state").in(states));
+        }
+
+        // Filter by categories
+        if (categories != null && !categories.isEmpty()) {
+            predicates.add(event.get("category").get("id").in(categories));
+        }
+
+        // Filter by rangeStart (eventDate >= rangeStart)
+        if (rangeStart != null) {
+            predicates.add(cb.greaterThanOrEqualTo(event.get("eventDate"), rangeStart));
+        }
+
+        // Filter by rangeEnd (eventDate <= rangeEnd)
+        if (rangeEnd != null) {
+            predicates.add(cb.lessThanOrEqualTo(event.get("eventDate"), rangeEnd));
+        }
+
+        query.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        if (pageable.getSort().isSorted()) {
+            query.orderBy(pageable.getSort().get().map(order ->
+                    order.isAscending() ? cb.asc(event.get(order.getProperty())) :
+                            cb.desc(event.get(order.getProperty()))).toList());
+        }
+
+        List<Event> events = entityManager.createQuery(query)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+
+        if (!events.isEmpty()) {
+            return eventMapper.toEventFullDtos(events);
+        }
+
+        return List.of();
+*/
     @Override
     public List<EventFullDto> getAllFilteredEvents(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
+
+        if (rangeStart != null) {
+            rangeStart = rangeStart.truncatedTo(ChronoUnit.SECONDS);
+        }
+
+        if (rangeEnd != null) {
+            rangeEnd = rangeEnd.truncatedTo(ChronoUnit.SECONDS);
+        }
+
         List<Event> events = eventsRepository.getAllFilteredEvents(users, states, categories, rangeStart, rangeEnd, pageable);
 
         if (!events.isEmpty()) {
@@ -192,12 +256,20 @@ public class EventServiceImpl implements EventService {
             throw new CommonNotFoundException("Category with id " + categoryId + " for the event does not exist");
         }
         Category category = categoryRepository.findById(categoryId).get();
+
+        Location location = newEventDto.getLocation();
+        if (location != null) {
+            Location savedLocation = locationRepository.findByLatAndLon(location.getLat(), location.getLon())
+                    .orElseGet(() -> locationRepository.save(location));
+            newEventDto.setLocation(savedLocation);
+        }
+
         Event event = eventMapper.toEventFromNewDto(newEventDto);
         event.setCategory(category);
         User user = userRepository.findById(userId).orElseThrow(() -> new
                 CommonNotFoundException("User with id " + userId + " does not exist"));
         event.setInitiator(user);
-        Event savedEvent = eventsRepository.save(event); // Persist the event
+        Event savedEvent = eventsRepository.save(event);
         return eventMapper.toEventFullDto(savedEvent);
     }
 
@@ -218,7 +290,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).get();
 
         if (event.getPublishedOn() != null) {
-            throw new CommonBadRequestException("Event cant be changed. Event is already published");
+            throw new CommonConflictException("Event cant be changed. Event is already published");
         }
 
         if (updateEventDto == null) {
@@ -239,7 +311,10 @@ public class EventServiceImpl implements EventService {
         }
 
         if (updateEventDto.getLocation() != null) {
-            event.setLocation(updateEventDto.getLocation());
+            Location location = updateEventDto.getLocation();
+            Location savedLocation = locationRepository.findByLatAndLon(location.getLat(), location.getLon())
+                    .orElseGet(() -> locationRepository.save(location));
+            event.setLocation(savedLocation);
         }
 
         if (updateEventDto.getPaid() != null) {
@@ -292,10 +367,8 @@ public class EventServiceImpl implements EventService {
             return result;
         }
 
-        // Fetch requests for the event and initiator
         List<Request> requests = requestRepository.findAllByEventAndInitiator(userId, eventId);
 
-        // Filter requests by provided requestIds
         List<Request> requestsToUpdate = requests.stream()
                 .filter(request -> eventRequestStatusUpdateRequest.getRequestIds().contains(request.getId()))
                 .collect(Collectors.toList());

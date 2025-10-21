@@ -14,7 +14,7 @@ import ru.practicum.categories.dto.NewCategoryDto;
 @RestController
 @RequestMapping("/admin/categories")
 public class CategoryAdminController {
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
