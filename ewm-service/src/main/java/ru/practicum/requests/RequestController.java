@@ -22,7 +22,7 @@ public class RequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ParticipationRequestDto getRequestsByUserIdAndEventId(@PathVariable("userId") Long userId,
+    public ParticipationRequestDto postRequestsByUserIdAndEventId(@PathVariable("userId") Long userId,
                                                                  @RequestParam Long eventId) {
         return requestService.postNewRequest(userId, eventId);
     }

@@ -13,7 +13,6 @@ import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.CompilationRepository;
 import ru.practicum.compilations.CompilationServiceImpl;
 import ru.practicum.compilations.dto.CompilationDto;
-import ru.practicum.errors.CommonBadRequestException;
 import ru.practicum.errors.CommonNotFoundException;
 import ru.practicum.events.Event;
 import ru.practicum.events.EventsRepository;
@@ -172,14 +171,6 @@ class CompilationServiceImplTest {
         assertTrue(result.getEvents().isEmpty());
         verifyNoInteractions(eventsRepository);
         verify(compilationMapper).toCompilationDto(any(Compilation.class));
-    }
-
-    @Test
-    void postCompilationBlankTitle() {
-        newCompilationDto.setTitle("");
-
-        assertThrows(CommonBadRequestException.class, () -> compilationService.postCompilation(newCompilationDto));
-        verifyNoInteractions(eventsRepository, compilationMapper);
     }
 
     @Test

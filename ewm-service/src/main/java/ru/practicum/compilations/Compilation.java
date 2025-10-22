@@ -1,6 +1,7 @@
 package ru.practicum.compilations;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import ru.practicum.events.Event;
@@ -31,6 +32,7 @@ public class Compilation {
 
     private Boolean pinned;
 
+    @NotBlank
     @Size(min = 1, max = 50, message = "Title must be between 1 and 50 characters")
     private String title;
 

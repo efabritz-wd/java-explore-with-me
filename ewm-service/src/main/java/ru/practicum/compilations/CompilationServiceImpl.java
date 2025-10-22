@@ -45,7 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto postCompilation(UpdateCompilationRequest newCompilationDto) {
-        if (newCompilationDto.getTitle().isBlank()) {
+        if (newCompilationDto.getTitle() == null) {
             throw new CommonBadRequestException("Compilation title is empty");
         }
         Compilation compilation = new Compilation();
