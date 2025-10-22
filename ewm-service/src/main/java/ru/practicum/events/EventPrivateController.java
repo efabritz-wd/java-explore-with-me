@@ -29,7 +29,7 @@ public class EventPrivateController {
         return eventService.getAllUserEvents(userId, from, size);
     }
 
-    @GetMapping("/eventId")
+    @GetMapping("/{eventId}")
     public EventFullDto getEventByUserAndId(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId) {
         return eventService.getEventByUserAndId(userId, eventId);

@@ -164,6 +164,7 @@ public class EventMapper {
             event.setCategory(category);
         }
         event.setAnnotation(newEventDto.getAnnotation());
+        event.setDescription(newEventDto.getDescription());
         event.setEventDate(newEventDto.getEventDate());
         event.setLocation(newEventDto.getLocation());
         event.setPaid(newEventDto.getPaid());

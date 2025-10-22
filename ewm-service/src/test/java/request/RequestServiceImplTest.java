@@ -76,7 +76,7 @@ class RequestServiceImplTest {
         requestDto.setId(1L);
         requestDto.setRequester(1L);
         requestDto.setEvent(1L);
-        requestDto.setRequestStatus(RequestStatus.PENDING);
+        requestDto.setStatus(RequestStatus.PENDING);
     }
 
     @Test
@@ -131,7 +131,7 @@ class RequestServiceImplTest {
 
         assertNotNull(result);
         assertEquals(requestDto, result);
-        assertEquals(RequestStatus.PENDING, result.getRequestStatus());
+        assertEquals(RequestStatus.PENDING, result.getStatus());
         verify(requestRepository).save(any(Request.class));
         verify(requestMapper).toRequestDto(request);
     }
@@ -192,7 +192,7 @@ class RequestServiceImplTest {
     void postNewRequestNoModeration() {
         event.setRequestModeration(false);
         request.setStatus(RequestStatus.CONFIRMED);
-        requestDto.setRequestStatus(RequestStatus.CONFIRMED);
+        requestDto.setStatus(RequestStatus.CONFIRMED);
 
         when(requestRepository.getRequestByEventAndRequester(1L, 1L)).thenReturn(Optional.empty());
         when(eventsRepository.findById(1L)).thenReturn(Optional.of(event));
@@ -202,7 +202,7 @@ class RequestServiceImplTest {
         ParticipationRequestDto result = requestService.postNewRequest(1L, 1L);
 
         assertNotNull(result);
-        assertEquals(RequestStatus.CONFIRMED, result.getRequestStatus());
+        assertEquals(RequestStatus.CONFIRMED, result.getStatus());
         verify(requestRepository).save(any(Request.class));
         verify(requestMapper).toRequestDto(request);
     }
@@ -210,7 +210,7 @@ class RequestServiceImplTest {
     @Test
     void cancelRequestsByUserIdAndEventId() {
         request.setStatus(RequestStatus.CANCELED);
-        requestDto.setRequestStatus(RequestStatus.CANCELED);
+        requestDto.setStatus(RequestStatus.CANCELED);
 
         when(requestRepository.findByIdAndRequester(1L, 1L)).thenReturn(Optional.of(request));
         when(requestRepository.save(request)).thenReturn(request);
@@ -220,7 +220,7 @@ class RequestServiceImplTest {
 
         assertNotNull(result);
         assertEquals(requestDto, result);
-        assertEquals(RequestStatus.CANCELED, result.getRequestStatus());
+        assertEquals(RequestStatus.CANCELED, result.getStatus());
         verify(requestRepository).save(request);
         verify(requestMapper).toRequestDto(request);
     }

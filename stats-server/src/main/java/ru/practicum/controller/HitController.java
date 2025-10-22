@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 import ru.practicum.HitDto;
-import ru.practicum.projection.StatsProjection;
+import ru.practicum.StatsDto;
 import ru.practicum.service.HitService;
 
 
@@ -31,10 +31,10 @@ public class HitController {
     }
 
     @GetMapping("/stats")
-    public List<StatsProjection> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                          @RequestParam(required = false) String uris,
-                                          @RequestParam(defaultValue = "false") Boolean unique) {
+    public List<StatsDto> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                   @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                   @RequestParam(required = false) String uris,
+                                   @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Fetching stats from {} to {}, uris: {}, unique: {}", start, end, uris, unique);
 
         List<String> urisList = (uris != null) ? Stream.of(uris.split(","))

@@ -30,11 +30,14 @@ public class StatsClient extends BaseClient {
         if (hitDto == null) {
             throw new IllegalArgumentException("HitDto cannot be null");
         }
+        log.info("HitDto recieved from main service: " + hitDto);
         return post("/hit", hitDto);
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end,
                                            String uris, boolean unique) {
+        log.info("getStas method of client called");
+        log.info("parameters: {}, {}, {}, {}", start, end, uris, unique);
 
         if (start == null || end == null) {
             throw new IllegalArgumentException("Start and end dates cannot be null");
@@ -52,11 +55,13 @@ public class StatsClient extends BaseClient {
         parameters.put("unique", unique);
 
         if (urisString.isEmpty()) {
+            log.info("/stats called with params: " + parameters);
             return get("/stats?start={start}&end={end}&unique={unique}", parameters);
         }
 
         parameters.put("uris", urisString);
 
+        log.info("/stats called with params: " + parameters);
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
 
     }

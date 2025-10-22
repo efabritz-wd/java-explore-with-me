@@ -1,11 +1,17 @@
 package ru.practicum.events;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
+import ru.practicum.StatsDto;
 import ru.practicum.categories.Category;
 import ru.practicum.categories.CategoryMapper;
 import ru.practicum.categories.CategoryRepository;
@@ -29,11 +35,13 @@ import ru.practicum.users.UserRepository;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -48,57 +56,6 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final StatsClient statsClient;
 
-    /*
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Event> query = cb.createQuery(Event.class);
-        Root<Event> event = query.from(Event.class);
-
-        List<Predicate> predicates = new ArrayList<>();
-
-        // Filter by users
-        if (users != null && !users.isEmpty()) {
-            predicates.add(event.get("initiator").get("id").in(users));
-        }
-
-        // Filter by states
-        if (states != null && !states.isEmpty()) {
-            predicates.add(event.get("state").in(states));
-        }
-
-        // Filter by categories
-        if (categories != null && !categories.isEmpty()) {
-            predicates.add(event.get("category").get("id").in(categories));
-        }
-
-        // Filter by rangeStart (eventDate >= rangeStart)
-        if (rangeStart != null) {
-            predicates.add(cb.greaterThanOrEqualTo(event.get("eventDate"), rangeStart));
-        }
-
-        // Filter by rangeEnd (eventDate <= rangeEnd)
-        if (rangeEnd != null) {
-            predicates.add(cb.lessThanOrEqualTo(event.get("eventDate"), rangeEnd));
-        }
-
-        query.where(cb.and(predicates.toArray(new Predicate[0])));
-
-        if (pageable.getSort().isSorted()) {
-            query.orderBy(pageable.getSort().get().map(order ->
-                    order.isAscending() ? cb.asc(event.get(order.getProperty())) :
-                            cb.desc(event.get(order.getProperty()))).toList());
-        }
-
-        List<Event> events = entityManager.createQuery(query)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-
-        if (!events.isEmpty()) {
-            return eventMapper.toEventFullDtos(events);
-        }
-
-        return List.of();
-*/
     @Override
     public List<EventFullDto> getAllFilteredEvents(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
@@ -130,6 +87,9 @@ public class EventServiceImpl implements EventService {
 
         if (eventUpdateDto.getEventDate() != null) {
             LocalDateTime newEventDate = eventUpdateDto.getEventDate();
+            if (newEventDate.isBefore(LocalDateTime.now())) {
+                throw new CommonConflictException("Event date is in the past");
+            }
             if (event.getPublishedOn() != null && newEventDate.isBefore(event.getPublishedOn().plusHours(1))) {
                 throw new CommonConflictException("Event date must be at least one hour after publication date");
             }
@@ -197,6 +157,11 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = new ArrayList<>();
 
+        for (Long catId : categories) {
+            if (categoryRepository.findById(catId).isEmpty()) {
+                throw new CommonNotFoundException("Category with id: " + catId + " not found.");
+            }
+        }
         if (rangeQuery) {
             events = eventsRepository.findPublicFilteredEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
         } else {
@@ -209,7 +174,10 @@ public class EventServiceImpl implements EventService {
         }
 
         addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
-        return eventMapper.toEventShortDtos(events);
+
+        List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
+
+        return eventMapper.toEventShortDtos(eventsWithNewViews);
     }
 
     @Override
@@ -225,6 +193,8 @@ public class EventServiceImpl implements EventService {
         }
 
         addOneHit(request.getRemoteAddr(), event.getId(), LocalDateTime.now());
+        getStatisticAndSetView(event);
+
         return eventMapper.toEventFullDto(event);
     }
 
@@ -275,7 +245,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public ParticipationRequestDto getParticipantRequestByUserAndEventIds(Long userId, Long eventId) {
-        Request request = requestRepository.getRequestByEventAndRequester(userId, eventId).orElseThrow(() ->
+        Request request = requestRepository.getRequestByEventAndRequester(eventId, userId).orElseThrow(() ->
                 new CommonNotFoundException("Request for event " + eventId +
                         " with userId " + userId + " was not found"));
         return requestMapper.toRequestDto(request);
@@ -300,7 +270,11 @@ public class EventServiceImpl implements EventService {
         if (updateEventDto.getEventDate() != null && updateEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new CommonBadRequestException("Event should be at least 2 hours earlier then actual timestamp");
         }
-        event.setEventDate(updateEventDto.getEventDate());
+
+        if (updateEventDto.getEventDate() != null) {
+            LocalDateTime date = updateEventDto.getEventDate().truncatedTo(ChronoUnit.SECONDS);
+            event.setEventDate(date);
+        }
 
         if (updateEventDto.getAnnotation() != null) {
             event.setAnnotation(updateEventDto.getAnnotation());
@@ -322,6 +296,9 @@ public class EventServiceImpl implements EventService {
         }
 
         if (updateEventDto.getParticipantLimit() != null) {
+            if (updateEventDto.getParticipantLimit() < 0) {
+                throw new CommonConflictException("Updating event particupant limit can not be null");
+            }
             event.setParticipantLimit(updateEventDto.getParticipantLimit());
         }
 
@@ -380,7 +357,7 @@ public class EventServiceImpl implements EventService {
         if (requestsToUpdate.stream()
                 .anyMatch(request -> RequestStatus.CONFIRMED.equals(request.getStatus()) &&
                         RequestStatus.REJECTED.equals(eventRequestStatusUpdateRequest.getStatus()))) {
-            throw new CommonBadRequestException("Cannot reject already confirmed requests");
+            throw new CommonConflictException("Cannot reject already confirmed requests");
         }
         if (RequestStatus.CONFIRMED.equals(eventRequestStatusUpdateRequest.getStatus()) &&
                 event.getConfirmedRequests() + requestsToUpdate.size() > event.getParticipantLimit()) {
@@ -399,7 +376,6 @@ public class EventServiceImpl implements EventService {
             eventsRepository.save(event);
         }
 
-        // Build result
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
         result.setConfirmedRequests(new ArrayList<>());
         result.setRejectedRequests(new ArrayList<>());
@@ -412,24 +388,41 @@ public class EventServiceImpl implements EventService {
 
         return result;
     }
-/*
-    private void addHit(Event event,
-                        HttpServletRequest request) {
-        LocalDateTime hitTime = LocalDateTime.now();
-        HitDto hitDto = HitDto.builder()
-                .ip(request.getRemoteAddr())
-                .app("main")
-                .uri("/events")
-                .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
 
-        statsClient.addHit(hitDto);
-        addOneHit(
-                request.getRemoteAddr(),
-                event.getId(),
-                hitTime
-        );
-    }*/
+
+    private Event getStatisticAndSetView(Event event) {
+        LocalDateTime start = (event.getCreatedOn() != null) ? event.getCreatedOn() : LocalDateTime.now().minusDays(1);
+        LocalDateTime end = LocalDateTime.now();
+        String uris = "/events/" + event.getId();
+
+        ResponseEntity<Object> stats = statsClient.getStats(start, end, uris, false);
+
+        List<StatsDto> statsDto = extractStats(stats);
+        log.info("Stats object: " + statsDto);
+
+        if (statsDto != null && statsDto.size() == 1) {
+            event.setViews(statsDto.get(0).getHits());
+        } else {
+            event.setViews(0);
+        }
+
+        return event;
+    }
+
+    private List<StatsDto> extractStats(ResponseEntity<Object> response) {
+        if (response == null || response.getStatusCode() != HttpStatus.OK) {
+            return Collections.emptyList();
+        }
+
+        Object body = response.getBody();
+        if (body instanceof List) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.convertValue(body, new TypeReference<List<StatsDto>>() {
+            });
+        }
+
+        return Collections.emptyList();
+    }
 
     private void addOneHit(String ip, Long eventId,
                            LocalDateTime hitTime) {
@@ -440,6 +433,7 @@ public class EventServiceImpl implements EventService {
                 .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
 
+        log.info("HitDto added: " + hitDto);
         statsClient.addHit(hitDto);
     }
 

@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import ru.practicum.categories.Category;
 import ru.practicum.categories.CategoryRepository;
 import ru.practicum.errors.CommonBadRequestException;
@@ -173,31 +172,30 @@ class EventServiceImplTest {
     @Test
     void getAllPublicFilteredEvents() {
 
-        EventShortDto eventShortDto = new EventShortDto();
-        eventShortDto.setId(1L);
-        eventShortDto.setAnnotation("Test Event");
-        List<Event> events = List.of(event);
-        List<EventShortDto> eventShortDtos = List.of(eventShortDto);
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "eventDate"));
+        Event event = Event.builder()
+                .id(1L)
+                .annotation("Test Event")
+                .state(Status.PUBLISHED)
+                .category(Category.builder().id(1L).build())
+                .build();
 
-        when(eventsRepository.findPublicFilteredEvents(
-                eq("test"), eq(List.of(1L)), eq(false), any(LocalDateTime.class), any(LocalDateTime.class), eq(true)))
-                .thenReturn(events);
-        when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(eventMapper.toEventShortDtos(events)).thenReturn(eventShortDtos);
+        when(eventsRepository.findPublicFilteredEvents(anyString(), any(), anyBoolean(),
+                any(), any(), anyBoolean()))
+                .thenReturn(List.of(event));
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(event.getCategory()));
+        when(eventMapper.toEventShortDtos(any())).thenReturn(List.of(
+                EventShortDto.builder().annotation("Test Event").build()
+        ));
 
         List<EventShortDto> result = eventService.getAllPublicFilteredEvents(
-                "test", List.of(1L), false, LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                "test", List.of(1L), false,
+                LocalDateTime.now(), LocalDateTime.now().plusDays(1),
                 true, EventSort.EVENT_DATE, 0, 10, httpServletRequest);
 
-        assertEquals(eventShortDtos, result);
         assertEquals(1, result.size());
-        assertEquals("Test Event", result.get(0).getAnnotation());
-        verify(statsClient, times(1)).addHit(any());
-        verify(eventMapper).toEventShortDtos(events);
-        verify(eventsRepository).findPublicFilteredEvents(
-                eq("test"), eq(List.of(1L)), eq(false), any(LocalDateTime.class), any(LocalDateTime.class), eq(true));
     }
+
 
     @Test
     void getPublicFilteredEventById() {

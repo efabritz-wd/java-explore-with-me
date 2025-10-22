@@ -32,8 +32,8 @@ public class EventPublicController {
         return eventService.getAllPublicFilteredEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
-    @GetMapping("/{userId}")
-    public EventFullDto getAllPublicFilteredEvents(@PathVariable Long userId, HttpServletRequest request) {
-        return eventService.getPublicFilteredEventById(userId, request);
+    @GetMapping("/{eventId}")
+    public EventFullDto getPublicFilteredEvent(@PathVariable Long eventId, HttpServletRequest request) {
+        return eventService.getPublicFilteredEventById(eventId, request);
     }
 }

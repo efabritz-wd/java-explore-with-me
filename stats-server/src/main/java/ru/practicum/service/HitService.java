@@ -2,7 +2,7 @@ package ru.practicum.service;
 
 
 import ru.practicum.HitDto;
-import ru.practicum.projection.StatsProjection;
+import ru.practicum.StatsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,5 +10,5 @@ import java.util.List;
 public interface HitService {
     HitDto createHit(HitDto hitDto);
 
-    List<StatsProjection> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
+    List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 }

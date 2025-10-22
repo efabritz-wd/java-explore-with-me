@@ -24,5 +24,5 @@ public class ParticipationRequestDto {
     private Long requester;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatus requestStatus;
+    private RequestStatus status;
 }

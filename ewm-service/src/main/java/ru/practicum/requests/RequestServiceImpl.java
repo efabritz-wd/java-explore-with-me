@@ -11,6 +11,7 @@ import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.users.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,14 +52,14 @@ public class RequestServiceImpl implements RequestService {
             throw new CommonConflictException("Event initiator can not be a requester");
         }
 
-        if (event.get().getParticipantLimit() <= event.get().getConfirmedRequests()) {
+        if (event.get().getParticipantLimit().equals(event.get().getConfirmedRequests())) {
             throw new CommonConflictException("Event participation limit reached");
         }
 
         Request newRequest = new Request();
         newRequest.setRequester(userId);
         newRequest.setEvent(eventId);
-        newRequest.setCreated(LocalDateTime.now());
+        newRequest.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         newRequest.setStatus(event.get().getRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
 
@@ -70,7 +71,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequestsByUserIdAndEventId(Long userId, Long requestId) {
         Request request = requestRepository.findByIdAndRequester(requestId, userId).orElseThrow(() ->
                 new CommonNotFoundException("While request canceling. Request with id " + requestId + " for user with id " + userId + " was not found"));
-        request.setStatus(RequestStatus.CANCELED);
+        request.setStatus(RequestStatus.PENDING);
         Request savedRequest = requestRepository.save(request);
         return requestMapper.toRequestDto(savedRequest);
     }

@@ -19,7 +19,7 @@ public class RequestMapper {
         dto.setEvent(request.getEvent());
         dto.setCreated(request.getCreated());
         dto.setRequester(request.getRequester());
-        dto.setRequestStatus(request.getStatus());
+        dto.setStatus(request.getStatus());
 
         return dto;
     }
@@ -45,7 +45,7 @@ public class RequestMapper {
         request.setEvent(participationRequestDto.getEvent());
         request.setCreated(participationRequestDto.getCreated());
         request.setRequester(participationRequestDto.getRequester());
-        request.setStatus(participationRequestDto.getRequestStatus());
+        request.setStatus(participationRequestDto.getStatus());
 
         return request;
     }
