@@ -52,9 +52,15 @@ public class RequestServiceImpl implements RequestService {
             throw new CommonConflictException("Event initiator can not be a requester");
         }
 
-        if (event.get().getParticipantLimit().equals(event.get().getConfirmedRequests())) {
+        if (event.get().getParticipantLimit() != null &&
+                event.get().getParticipantLimit().equals(event.get().getConfirmedRequests())) {
             throw new CommonConflictException("Event participation limit reached");
         }
+
+        List<Request> requests = requestRepository.findAllByEvent(eventId);
+
+        if (!event.get().getRequestModeration() && requests.size() >= event.get().getParticipantLimit())
+            throw new CommonConflictException("Event participation limit reached");
 
         Request newRequest = new Request();
         newRequest.setRequester(userId);
@@ -71,7 +77,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequestsByUserIdAndEventId(Long userId, Long requestId) {
         Request request = requestRepository.findByIdAndRequester(requestId, userId).orElseThrow(() ->
                 new CommonNotFoundException("While request canceling. Request with id " + requestId + " for user with id " + userId + " was not found"));
-        request.setStatus(RequestStatus.PENDING);
+        request.setStatus(RequestStatus.CANCELED);
         Request savedRequest = requestRepository.save(request);
         return requestMapper.toRequestDto(savedRequest);
     }

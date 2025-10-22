@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
         if (eventUpdateDto.getEventDate() != null) {
             LocalDateTime newEventDate = eventUpdateDto.getEventDate();
             if (newEventDate.isBefore(LocalDateTime.now())) {
-                throw new CommonConflictException("Event date is in the past");
+                throw new CommonBadRequestException("Event date is in the past");
             }
             if (event.getPublishedOn() != null && newEventDate.isBefore(event.getPublishedOn().plusHours(1))) {
                 throw new CommonConflictException("Event date must be at least one hour after publication date");
@@ -159,7 +159,7 @@ public class EventServiceImpl implements EventService {
 
         for (Long catId : categories) {
             if (categoryRepository.findById(catId).isEmpty()) {
-                throw new CommonNotFoundException("Category with id: " + catId + " not found.");
+                throw new CommonBadRequestException("Category with id: " + catId + " not found.");
             }
         }
         if (rangeQuery) {
@@ -168,6 +168,7 @@ public class EventServiceImpl implements EventService {
             LocalDateTime date = LocalDateTime.now();
             events = eventsRepository.findPublicFilteredEventsAfterNow(text, categories, paid, date, onlyAvailable, pageable);
         }
+
 
         if (events.isEmpty()) {
             return List.of();
@@ -297,7 +298,7 @@ public class EventServiceImpl implements EventService {
 
         if (updateEventDto.getParticipantLimit() != null) {
             if (updateEventDto.getParticipantLimit() < 0) {
-                throw new CommonConflictException("Updating event particupant limit can not be null");
+                throw new CommonBadRequestException("Updating event particupant limit can not be null");
             }
             event.setParticipantLimit(updateEventDto.getParticipantLimit());
         }

@@ -65,6 +65,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
         eventSet.addAll(events);
         compilation.setEvents(eventSet);
+        compilationRepository.save(compilation);
         return compilationMapper.toCompilationDto(compilation);
     }
 
