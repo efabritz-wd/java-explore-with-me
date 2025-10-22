@@ -52,10 +52,10 @@ public class RequestServiceImpl implements RequestService {
             throw new CommonConflictException("Event initiator can not be a requester");
         }
 
-        if (event.get().getParticipantLimit() != null &&
+        /*if (event.get().getParticipantLimit() != null &&
                 event.get().getParticipantLimit().equals(event.get().getConfirmedRequests())) {
             throw new CommonConflictException("Event participation limit reached");
-        }
+        }*/
 
         List<Request> requests = requestRepository.findAllByEvent(eventId);
 

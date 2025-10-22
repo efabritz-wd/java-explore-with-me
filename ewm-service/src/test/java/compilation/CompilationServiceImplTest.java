@@ -183,14 +183,6 @@ class CompilationServiceImplTest {
     }
 
     @Test
-    void postCompilationNullPinned() {
-        newCompilationDto.setPinned(null);
-
-        assertThrows(CommonBadRequestException.class, () -> compilationService.postCompilation(newCompilationDto));
-        verifyNoInteractions(eventsRepository, compilationMapper);
-    }
-
-    @Test
     void postCompilationEventNotFoundon() {
         when(eventsRepository.findById(1L)).thenReturn(Optional.empty());
 

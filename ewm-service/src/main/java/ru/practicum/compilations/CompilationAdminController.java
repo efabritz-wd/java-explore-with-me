@@ -1,5 +1,6 @@
 package ru.practicum.compilations;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,17 +18,18 @@ public class CompilationAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto postCompilation(@RequestBody UpdateCompilationRequest updateCompilationRequest) {
+    public CompilationDto postCompilation(@Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
         return compilationService.postCompilation(updateCompilationRequest);
     }
 
     @PatchMapping("/{compId}")
     public CompilationDto patchCompilation(@PathVariable Long compId,
-                                           @RequestBody UpdateCompilationRequest updateCompilationRequest) {
+                                           @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
         return compilationService.patchCompilation(compId, updateCompilationRequest);
     }
 
     @DeleteMapping("/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Long compId) {
         compilationService.deleteCompilation(compId);
     }

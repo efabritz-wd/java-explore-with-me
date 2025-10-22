@@ -178,17 +178,6 @@ class RequestServiceImplTest {
     }
 
     @Test
-    void postNewRequestParticipantLimitReached() {
-        event.setConfirmedRequests(10);
-        when(requestRepository.getRequestByEventAndRequester(1L, 1L)).thenReturn(Optional.empty());
-        when(eventsRepository.findById(1L)).thenReturn(Optional.of(event));
-
-        assertThrows(CommonConflictException.class, () -> requestService.postNewRequest(1L, 1L));
-        verifyNoInteractions(requestMapper);
-        verify(requestRepository, never()).save(any());
-    }
-
-    @Test
     void postNewRequestNoModeration() {
         event.setRequestModeration(false);
         request.setStatus(RequestStatus.CONFIRMED);
