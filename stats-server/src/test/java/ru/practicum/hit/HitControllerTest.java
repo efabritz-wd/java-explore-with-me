@@ -71,7 +71,7 @@ class HitControllerTest {
         mockMvc.perform(post("/hit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(this.hitDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(hitDto.getId()))
                 .andExpect(jsonPath("$.app").value(hitDto.getApp()))
                 .andExpect(jsonPath("$.uri").value(hitDto.getUri()))

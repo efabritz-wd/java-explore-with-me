@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 import ru.practicum.HitDto;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 public class HitController {
     private final HitService hitService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
     public HitDto createHit(@Valid @RequestBody HitDto hitDto) {
         log.info("HitDto received: " + hitDto);

@@ -208,7 +208,7 @@ class EventServiceImplTest {
         EventFullDto result = eventService.getPublicFilteredEventById(1L, httpServletRequest);
 
         assertEquals(eventFullDto, result);
-        verify(statsClient, times(1)).addHit(any());
+        verify(statsClient, times(2)).addHit(any());
         verify(eventMapper).toEventFullDto(event);
     }
 

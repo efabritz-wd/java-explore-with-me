@@ -33,6 +33,7 @@ import ru.practicum.users.User;
 import ru.practicum.users.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -197,16 +198,15 @@ public class EventServiceImpl implements EventService {
             events = events.stream().filter(event -> event.getEventDate().isAfter(LocalDateTime.now())).toList();
         }
 
-
         if (events.isEmpty()) {
             return List.of();
         }
 
-        List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
-        addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
-
-        return eventMapper.toEventShortDtos(eventsWithNewViews);
-
+       // List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
+       // addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
+       // return eventMapper.toEventShortDtos(eventsWithNewViews);
+        sendUrisForStatistic(request, events);
+        return eventMapper.toEventShortDtos(events);
     }
 
     @Override
@@ -222,7 +222,7 @@ public class EventServiceImpl implements EventService {
         }
 
         getStatisticAndSetView(event);
-        addOneHit(request.getRemoteAddr(), event.getId(), LocalDateTime.now());
+        sendUriForStatistic(request, event);
 
         return eventMapper.toEventFullDto(event);
     }
@@ -452,6 +452,34 @@ public class EventServiceImpl implements EventService {
         }
 
         return Collections.emptyList();
+    }
+
+    private void sendUriForStatistic(HttpServletRequest request, Event event) {
+        LocalDateTime actualDate = LocalDateTime.now();
+        String date = actualDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        HitDto hitDto = new HitDto();
+        hitDto.setIp(request.getRemoteAddr());
+        hitDto.setApp("main");
+        hitDto.setUri("/events");
+        hitDto.setTimestamp(date);
+        statsClient.addHit(hitDto);
+
+        addOneHit(request.getRemoteAddr(), event.getId(), actualDate);
+    }
+
+    private void sendUrisForStatistic(HttpServletRequest request, List<Event> events) {
+        LocalDateTime actualDate = LocalDateTime.now();
+        String date = actualDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        HitDto hitDto = new HitDto();
+        hitDto.setIp(request.getRemoteAddr());
+        hitDto.setApp("main");
+        hitDto.setUri("/events");
+        hitDto.setTimestamp(date);
+        statsClient.addHit(hitDto);
+
+        addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
     }
 
     private void addOneHit(String ip, Long eventId,
