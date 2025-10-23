@@ -85,6 +85,10 @@ public class EventServiceImpl implements EventService {
 
         Event event = eventsRepository.findById(eventId).get();
 
+        if (eventUpdateDto == null || eventUpdateDto.isEmpty()) {
+            return eventMapper.toEventFullDto(event);
+        }
+
         if (eventUpdateDto.getEventDate() != null) {
             LocalDateTime newEventDate = eventUpdateDto.getEventDate();
             if (newEventDate.isBefore(LocalDateTime.now())) {
