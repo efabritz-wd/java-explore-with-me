@@ -199,6 +199,7 @@ public class EventServiceImpl implements EventService {
         }
 
         addOneHit(request.getRemoteAddr(), event.getId(), LocalDateTime.now());
+        // Event eventWthView =
         getStatisticAndSetView(event);
 
         return eventMapper.toEventFullDto(event);
@@ -446,6 +447,7 @@ public class EventServiceImpl implements EventService {
     private void addSeveralHits(String ip,
                                 List<Event> events,
                                 LocalDateTime hitTime) {
+        /*
         for (Event event : events) {
             HitDto hitDto = HitDto.builder()
                     .ip(ip)
@@ -455,8 +457,20 @@ public class EventServiceImpl implements EventService {
                     .build();
 
             statsClient.addHit(hitDto);
-            ;
-        }
+
+        }*/
+        String uriString = events.stream()
+                .map(event -> "/events/" + event.getId())
+                .collect(Collectors.joining(","));
+
+        HitDto hitDto = HitDto.builder()
+                .ip(ip)
+                .app("main")
+                .uri(uriString)
+                .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
+
+        statsClient.addHit(hitDto);
     }
 
 }
