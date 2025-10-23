@@ -122,7 +122,9 @@ public class EventServiceImpl implements EventService {
             event.setAnnotation(eventUpdateDto.getAnnotation());
         }
         if (eventUpdateDto.getCategory() != null) {
-            event.setCategory(categoryMapper.toCategoryFromDto(eventUpdateDto.getCategory()));
+            Category category = categoryRepository.findById(eventUpdateDto.getCategory()).orElseThrow(()
+                    -> new CommonNotFoundException("Category with id " + eventUpdateDto.getCategory() + " was not found"));
+            event.setCategory(category);
         }
         if (eventUpdateDto.getDescription() != null) {
             event.setDescription(eventUpdateDto.getDescription());

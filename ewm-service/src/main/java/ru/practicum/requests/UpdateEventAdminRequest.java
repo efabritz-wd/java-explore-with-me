@@ -21,7 +21,7 @@ public class UpdateEventAdminRequest {
     @Size(min = 20, max = 2000, message = "Annotation must be between 20 and 2000 characters")
     private String annotation;
 
-    private CategoryDto category;
+    private Long category;
 
     @Size(min = 20, max = 7000, message = "Description must be between 20 and 7000 characters")
     private String description;
@@ -44,9 +44,9 @@ public class UpdateEventAdminRequest {
     private String title;
 
     public boolean isEmpty() {
-        return (annotation == null || annotation.trim().isEmpty()) &&
-                (description == null || title.trim().isEmpty()) &&
-                (title == null || title.trim().isEmpty()) &&
+        return annotation == null &&
+                description == null &&
+                title == null &&
                 category == null &&
                 eventDate == null &&
                 stateAction == null &&
