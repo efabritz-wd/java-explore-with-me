@@ -54,7 +54,7 @@ public class CompilationServiceImpl implements CompilationService {
         Set<Event> eventSet = new HashSet<>();
         List<Event> events = new ArrayList<>();
 
-        if (newCompilationDto.getEvents().isEmpty()) {
+        if (newCompilationDto.getEvents() == null || newCompilationDto.getEvents().isEmpty()) {
             compilation.setEvents(new HashSet<>());
         } else {
             events = newCompilationDto.getEvents().stream()
