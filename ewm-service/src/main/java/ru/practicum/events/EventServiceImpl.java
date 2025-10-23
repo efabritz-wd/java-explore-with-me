@@ -179,12 +179,12 @@ public class EventServiceImpl implements EventService {
             return List.of();
         }
 
-        addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
+       // addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
+      //  return eventMapper.toEventShortDtos(events);
+        List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
 
-        /*List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
+        return eventMapper.toEventShortDtos(eventsWithNewViews);
 
-        return eventMapper.toEventShortDtos(eventsWithNewViews);*/
-        return eventMapper.toEventShortDtos(events);
     }
 
     @Override
