@@ -3,6 +3,7 @@ package ru.practicum.requests;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,8 @@ public class UpdateEventAdminRequest {
 
     private Boolean paid;
 
-    private Integer participantLimit;
+    @Min(value = 0, message = "Participant limit must be 0 or greater")
+    private Integer participantLimit = 0;
 
     private Boolean requestModeration;
 
