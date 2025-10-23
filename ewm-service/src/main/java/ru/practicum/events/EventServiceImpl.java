@@ -239,7 +239,7 @@ public class EventServiceImpl implements EventService {
     //check ausgabe
     @Override
     public EventFullDto getEventByUserAndId(Long userId, Long eventId) {
-        Event event = eventsRepository.findByIdAndInitiatorId(userId, eventId).orElseThrow(() -> new CommonNotFoundException(
+        Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new CommonNotFoundException(
                 "Event with id " + eventId + " and initiator id " + userId + " was not found"));
 
         return eventMapper.toEventFullDto(event);
