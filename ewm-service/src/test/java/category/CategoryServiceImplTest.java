@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.categories.*;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.dto.NewCategoryDto;
-import ru.practicum.errors.CategoryConflictException;
 import ru.practicum.errors.CommonBadRequestException;
+import ru.practicum.errors.CommonConflictException;
 import ru.practicum.errors.CommonNotFoundException;
 
 import java.util.List;
@@ -85,7 +85,7 @@ public class CategoryServiceImplTest {
     void createDuplicateCategory() {
         NewCategoryDto duplicateDto = new NewCategoryDto("Kino");
 
-        CategoryConflictException exception = assertThrows(CategoryConflictException.class,
+        CommonConflictException exception = assertThrows(CommonConflictException.class,
                 () -> categoryService.createCategory(duplicateDto));
         assertEquals("Category with name " + duplicateDto.getName() + " already exists.", exception.getMessage());
     }

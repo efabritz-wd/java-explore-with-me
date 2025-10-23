@@ -76,7 +76,6 @@ public class Event {
 
     private Integer views;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

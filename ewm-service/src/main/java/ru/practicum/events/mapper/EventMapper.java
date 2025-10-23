@@ -18,14 +18,11 @@ public interface EventMapper {
 
     List<Event> toEventsFromFullDto(List<EventFullDto> eventDtos);
 
-
     EventShortDto toEventShortDto(Event event);
 
     List<EventShortDto> toEventShortDtos(List<Event> events);
 
     Event toEventFromShortDto(EventShortDto eventDto);
-
-   // List<Event> toEventsFromShortDto(List<EventShortDto> eventShortDtos);
 
 
     NewEventDto toEventNewDto(Event event);
@@ -34,5 +31,4 @@ public interface EventMapper {
 
     Event toEventFromNewDto(EventShortDto eventDto);
 
-    //List<Event> toEventsFromaNewDto(List<EventShortDto> eventShortDtos);
 }

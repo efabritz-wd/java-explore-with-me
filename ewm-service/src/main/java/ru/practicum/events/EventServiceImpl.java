@@ -236,7 +236,6 @@ public class EventServiceImpl implements EventService {
 
     }
 
-    //check ausgabe
     @Override
     public EventFullDto getEventByUserAndId(Long userId, Long eventId) {
         Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new CommonNotFoundException(
@@ -273,10 +272,10 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(savedEvent);
     }
 
-    //check ausgabe
     @Override
     public List<ParticipationRequestDto> getParticipantRequestsByUserAndEventIds(Long userId, Long eventId) {
         List<Request> requests = requestRepository.getRequestsByEventAndRequester(eventId, userId);
+        log.info("Requests of user " + userId + " for eventId " + eventId + " found: " + requests);
         if (requests == null) {
             return List.of();
         }
@@ -368,7 +367,6 @@ public class EventServiceImpl implements EventService {
             throw new CommonBadRequestException("User with id " + userId + " is not the initiator of event with id " + eventId);
         }
 
-        // Return empty result if no moderation or no participant limit
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
             result.setConfirmedRequests(new ArrayList<>());
@@ -385,7 +383,7 @@ public class EventServiceImpl implements EventService {
             throw new CommonNotFoundException("No matching requests found for the provided request IDs");
         }
 
-        // Validate status changes
+        // status changes
         if (requestsToUpdate.stream()
                 .anyMatch(request -> RequestStatus.CONFIRMED.equals(request.getStatus()) &&
                         RequestStatus.REJECTED.equals(eventRequestStatusUpdateRequest.getStatus()))) {
@@ -396,13 +394,13 @@ public class EventServiceImpl implements EventService {
             throw new CommonConflictException("Participant limit reached for event with id " + eventId);
         }
 
-        // Update request statuses
+        // request statuses
         for (Request request : requestsToUpdate) {
             request.setStatus(eventRequestStatusUpdateRequest.getStatus());
         }
         requestRepository.saveAll(requestsToUpdate);
 
-        // Update confirmed requests count if status is CONFIRMED
+        // confirm requests count if status is CONFIRMED
         if (RequestStatus.CONFIRMED.equals(eventRequestStatusUpdateRequest.getStatus())) {
             event.setConfirmedRequests(event.getConfirmedRequests() + requestsToUpdate.size());
             eventsRepository.save(event);

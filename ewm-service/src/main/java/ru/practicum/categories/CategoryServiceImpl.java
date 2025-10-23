@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.dto.NewCategoryDto;
-import ru.practicum.errors.CategoryConflictException;
 import ru.practicum.errors.CommonBadRequestException;
 import ru.practicum.errors.CommonConflictException;
 import ru.practicum.errors.CommonNotFoundException;
@@ -34,12 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         if (categoryRepository.existsByName(newCategoryDto.getName())) {
-            throw new CategoryConflictException("Category with name " + newCategoryDto.getName() + " already exists.");
-            /*
-            *  throw new CommonConflictException("could not execute statement; SQL [n/a]; constraint [uq_category_name];" +
-                    " nested exception is org.hibernate.exception.ConstraintViolationException:" +
-                    " could not execute statement");
-            * */
+            throw new CommonConflictException("Category with name " + newCategoryDto.getName() + " already exists.");
         }
 
         Category category = categoryMapper.toCategoryFromNewDto(newCategoryDto);
@@ -60,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryRepository.existsByName(categoryDto.getName())) {
             Long idWithName = categoryRepository.findByName(categoryDto.getName()).getId();
             if (!Objects.equals(idWithName, catId)) {
-                throw new CategoryConflictException("Category with name " + categoryDto.getName() + " already exists.");
+                throw new CommonConflictException("Category with name " + categoryDto.getName() + " already exists.");
             }
         }
         Category categoryFound = categoryRepository.findById(catId).get();
