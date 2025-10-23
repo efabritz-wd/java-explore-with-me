@@ -49,6 +49,11 @@ public class CompilationServiceImpl implements CompilationService {
             throw new CommonBadRequestException("Compilation title is empty");
         }
         Compilation compilation = new Compilation();
+
+        if (newCompilationDto.getTitle().isBlank()) {
+            throw new CommonBadRequestException("Compilation title cannot be blank.");
+        }
+
         compilation.setTitle(newCompilationDto.getTitle());
 
         Set<Event> eventSet = new HashSet<>();
