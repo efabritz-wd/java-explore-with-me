@@ -50,7 +50,6 @@ public class CompilationServiceImpl implements CompilationService {
         }
         Compilation compilation = new Compilation();
         compilation.setTitle(newCompilationDto.getTitle());
-        compilation.setPinned(newCompilationDto.getPinned());
 
         Set<Event> eventSet = new HashSet<>();
         List<Event> events = new ArrayList<>();
@@ -63,6 +62,8 @@ public class CompilationServiceImpl implements CompilationService {
                             .orElseThrow(() -> new CommonNotFoundException("Event not found with ID: " + eventId)))
                     .toList();
         }
+        compilation.setPinned(newCompilationDto.getPinned());
+
         eventSet.addAll(events);
         compilation.setEvents(eventSet);
         compilationRepository.save(compilation);
