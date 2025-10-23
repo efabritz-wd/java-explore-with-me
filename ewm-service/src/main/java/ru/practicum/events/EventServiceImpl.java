@@ -179,6 +179,7 @@ public class EventServiceImpl implements EventService {
 
         if (categories != null) {
             for (Long catId : categories) {
+                log.info("Category found with id: " + catId);
                 if (categoryRepository.findById(catId).isEmpty()) {
                     throw new CommonBadRequestException("Category with id: " + catId + " not found.");
                 }
@@ -187,9 +188,13 @@ public class EventServiceImpl implements EventService {
 
         if (rangeQuery) {
             events = eventsRepository.findPublicFilteredEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
+            log.info("Events found with date: " + events);
         } else {
-            LocalDateTime date = LocalDateTime.now();
-            events = eventsRepository.findPublicFilteredEventsAfterNow(text, categories, paid, date, onlyAvailable, pageable);
+            events = eventsRepository.findPublicFilteredEventsAfterNow(text, categories, paid, onlyAvailable, pageable);
+
+            log.info("Events found: " + events);
+
+            events = events.stream().filter(event -> event.getEventDate().isAfter(LocalDateTime.now())).toList();
         }
 
 
@@ -231,6 +236,7 @@ public class EventServiceImpl implements EventService {
 
     }
 
+    //check ausgabe
     @Override
     public EventFullDto getEventByUserAndId(Long userId, Long eventId) {
         Event event = eventsRepository.findByIdAndInitiatorId(userId, eventId).orElseThrow(() -> new CommonNotFoundException(
@@ -267,6 +273,7 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(savedEvent);
     }
 
+    //check ausgabe
     @Override
     public ParticipationRequestDto getParticipantRequestByUserAndEventIds(Long userId, Long eventId) {
         Request request = requestRepository.getRequestByEventAndRequester(eventId, userId).orElseThrow(() ->

@@ -19,6 +19,7 @@ public interface EventsRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.category.id = :id")
     List<Event> findAllByCategoryId(@Param("id") Long id);
 
+    //correct query
     @Query("SELECT e FROM Event e " +
             "WHERE e.state = 'PUBLISHED' " +
             "AND (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
@@ -34,18 +35,48 @@ public interface EventsRepository extends JpaRepository<Event, Long> {
             @Param("rangeEnd") LocalDateTime rangeEnd,
             @Param("onlyAvailable") boolean onlyAvailable);
 
+    /*
+    // correct query
     @Query("SELECT e FROM Event e " +
             "WHERE e.state = 'PUBLISHED' " +
-            "AND (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
+            "AND (:text IS NULL OR (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR LOWER(e.description) " +
+            "LIKE LOWER(CONCAT('%', :text, '%')))) " +
             "AND (:categories IS NULL OR e.category.id IN :categories) " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
-            "AND (e.eventDate > :date) " +
             "AND (:onlyAvailable = FALSE OR e.participantLimit = 0 OR e.confirmedRequests < e.participantLimit)")
     List<Event> findPublicFilteredEventsAfterNow(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
             @Param("paid") Boolean paid,
-            @Param("date") LocalDateTime date,
+            @Param("onlyAvailable") boolean onlyAvailable,
+            Pageable pageable);*/
+
+   /* @Query("SELECT e FROM Event e " +
+            "WHERE e.state = 'PUBLISHED' " +
+            "AND (:text IS NULL OR LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) " +
+            "     OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (:paid IS NULL OR e.paid = :paid) " +
+            "AND (:onlyAvailable = FALSE OR e.participantLimit = 0 OR e.confirmedRequests < e.participantLimit)")
+    List<Event> findPublicFilteredEventsAfterNow(
+            @Param("text") String text,
+            @Param("categories") List<Long> categories,
+            @Param("paid") Boolean paid,
+            @Param("onlyAvailable") boolean onlyAvailable,
+            Pageable pageable);*/
+
+    @Query("SELECT e FROM Event e " +
+            "WHERE e.state = 'PUBLISHED' " +
+            "AND (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) " +
+            "     OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%')) " +
+            "     OR :text IS NULL) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (:paid IS NULL OR e.paid = :paid) " +
+            "AND (:onlyAvailable = FALSE OR e.participantLimit = 0 OR e.confirmedRequests < e.participantLimit)")
+    List<Event> findPublicFilteredEventsAfterNow(
+            @Param("text") String text,
+            @Param("categories") List<Long> categories,
+            @Param("paid") Boolean paid,
             @Param("onlyAvailable") boolean onlyAvailable,
             Pageable pageable);
 
