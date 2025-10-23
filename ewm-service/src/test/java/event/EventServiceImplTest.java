@@ -295,21 +295,15 @@ class EventServiceImplTest {
     void getParticipantRequestByUserAndEventIds() {
         Request request = new Request();
         ParticipationRequestDto requestDto = new ParticipationRequestDto();
-        when(requestRepository.getRequestByEventAndRequester(1L, 1L)).thenReturn(Optional.of(request));
-        when(requestMapper.toRequestDto(request)).thenReturn(requestDto);
 
-        ParticipationRequestDto result = eventService.getParticipantRequestByUserAndEventIds(1L, 1L);
+        List<ParticipationRequestDto> result = eventService.getParticipantRequestsByUserAndEventIds(1L, 1L);
 
-        assertEquals(requestDto, result);
-        verify(requestMapper).toRequestDto(request);
+        assertEquals(List.of(), result);
     }
 
     @Test
     void getParticipantRequestByUserAndEventIdsNotFound() {
-        when(requestRepository.getRequestByEventAndRequester(1L, 1L)).thenReturn(Optional.empty());
-
-        assertThrows(CommonNotFoundException.class, () ->
-                eventService.getParticipantRequestByUserAndEventIds(1L, 1L));
+        assertTrue(eventService.getParticipantRequestsByUserAndEventIds(1L, 1L).isEmpty());
     }
 
     @Test

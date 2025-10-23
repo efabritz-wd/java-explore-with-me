@@ -41,7 +41,7 @@ public interface EventService {
     EventFullDto createEvent(Long userId,
                              NewEventDto newEventDto);
 
-    ParticipationRequestDto getParticipantRequestByUserAndEventIds(Long userId, Long eventId);
+    List<ParticipationRequestDto> getParticipantRequestsByUserAndEventIds(Long userId, Long eventId);
 
     EventFullDto updateEventByUserAndEventIds(Long userId, Long eventId, UpdateEventUserRequest newEventDto);
 

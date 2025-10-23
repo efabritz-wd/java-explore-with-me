@@ -275,11 +275,12 @@ public class EventServiceImpl implements EventService {
 
     //check ausgabe
     @Override
-    public ParticipationRequestDto getParticipantRequestByUserAndEventIds(Long userId, Long eventId) {
-        Request request = requestRepository.getRequestByEventAndRequester(eventId, userId).orElseThrow(() ->
-                new CommonNotFoundException("Request for event " + eventId +
-                        " with userId " + userId + " was not found"));
-        return requestMapper.toRequestDto(request);
+    public List<ParticipationRequestDto> getParticipantRequestsByUserAndEventIds(Long userId, Long eventId) {
+        List<Request> requests = requestRepository.getRequestsByEventAndRequester(eventId, userId);
+        if (requests == null) {
+            return List.of();
+        }
+        return requestMapper.toRequestDtos(requests);
     }
 
     @Override

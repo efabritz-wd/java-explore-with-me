@@ -15,6 +15,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query("SELECT r FROM Request r WHERE r.event = :eventId AND r.requester = :userId")
     Optional<Request> getRequestByEventAndRequester(@Param("eventId") Long eventId, @Param("userId") Long userId);
 
+    @Query("SELECT r FROM Request AS r " +
+            "JOIN Event AS event ON r.event = event.id " +
+            "WHERE r.event = :eventId AND event.initiator.id = :userId")
+    List<Request> getRequestsByEventAndRequester(@Param("eventId") Long eventId, @Param("userId") Long userId);
+
     @Query("SELECT r FROM Request r " +
             "JOIN ru.practicum.events.Event e ON r.event = e.id " +
             "WHERE r.event = :eventId AND e.initiator.id = :initiatorId")

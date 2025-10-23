@@ -36,9 +36,9 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public ParticipationRequestDto getParticipantRequestByUserAndEventIds(@PathVariable("userId") Long userId,
+    public List<ParticipationRequestDto> getParticipantRequestsByUserAndEventIds(@PathVariable("userId") Long userId,
                                                                           @PathVariable("eventId") Long eventId) {
-        return eventService.getParticipantRequestByUserAndEventIds(userId, eventId);
+        return eventService.getParticipantRequestsByUserAndEventIds(userId, eventId);
     }
 
     @PostMapping
