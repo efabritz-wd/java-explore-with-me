@@ -199,9 +199,10 @@ public class EventServiceImpl implements EventService {
             throw new CommonNotFoundException("Event with id " + eventId + " was not found.");
         }
 
+        getStatisticAndSetView(event);
         addOneHit(request.getRemoteAddr(), event.getId(), LocalDateTime.now());
         // Event eventWthView =
-        getStatisticAndSetView(event);
+
 
         return eventMapper.toEventFullDto(event);
     }
