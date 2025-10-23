@@ -162,11 +162,14 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = new ArrayList<>();
 
-        for (Long catId : categories) {
-            if (categoryRepository.findById(catId).isEmpty()) {
-                throw new CommonBadRequestException("Category with id: " + catId + " not found.");
+        if (categories != null) {
+            for (Long catId : categories) {
+                if (categoryRepository.findById(catId).isEmpty()) {
+                    throw new CommonBadRequestException("Category with id: " + catId + " not found.");
+                }
             }
         }
+
         if (rangeQuery) {
             events = eventsRepository.findPublicFilteredEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
         } else {
@@ -179,9 +182,8 @@ public class EventServiceImpl implements EventService {
             return List.of();
         }
 
-       // addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
-      //  return eventMapper.toEventShortDtos(events);
         List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
+        addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
 
         return eventMapper.toEventShortDtos(eventsWithNewViews);
 
@@ -201,8 +203,6 @@ public class EventServiceImpl implements EventService {
 
         getStatisticAndSetView(event);
         addOneHit(request.getRemoteAddr(), event.getId(), LocalDateTime.now());
-        // Event eventWthView =
-
 
         return eventMapper.toEventFullDto(event);
     }
@@ -404,7 +404,7 @@ public class EventServiceImpl implements EventService {
         LocalDateTime end = LocalDateTime.now();
         String uris = "/events/" + event.getId();
 
-        ResponseEntity<Object> stats = statsClient.getStats(start, end, uris, false);
+        ResponseEntity<Object> stats = statsClient.getStats(start, end, uris, true);
 
         List<StatsDto> statsDto = extractStats(stats);
         log.info("Stats object: " + statsDto);
@@ -449,18 +449,7 @@ public class EventServiceImpl implements EventService {
     private void addSeveralHits(String ip,
                                 List<Event> events,
                                 LocalDateTime hitTime) {
-        /*
-        for (Event event : events) {
-            HitDto hitDto = HitDto.builder()
-                    .ip(ip)
-                    .app("main")
-                    .uri("/events/" + event.getId())
-                    .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
-                    .build();
 
-            statsClient.addHit(hitDto);
-
-        }*/
         String uriString = events.stream()
                 .map(event -> "/events/" + event.getId())
                 .collect(Collectors.joining(","));
