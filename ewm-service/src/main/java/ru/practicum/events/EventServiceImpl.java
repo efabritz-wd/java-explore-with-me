@@ -85,7 +85,7 @@ public class EventServiceImpl implements EventService {
 
         Event event = eventsRepository.findById(eventId).get();
 
-        if (eventUpdateDto == null || eventUpdateDto.isEmpty()) {
+        if (eventUpdateDto == null) {
             return eventMapper.toEventFullDto(event);
         }
 
