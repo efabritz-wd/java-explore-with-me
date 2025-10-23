@@ -1,6 +1,5 @@
 package ru.practicum.events;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,7 +30,7 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateFilteredEvent(@PathVariable Long eventId,
-                                            @Valid @RequestBody UpdateEventAdminRequest eventUpdateDto) {
+                                            @RequestBody UpdateEventAdminRequest eventUpdateDto) {
         return eventService.updateFilteredEvent(eventId, eventUpdateDto);
     }
 }
