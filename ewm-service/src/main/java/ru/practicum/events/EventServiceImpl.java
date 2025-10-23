@@ -89,6 +89,19 @@ public class EventServiceImpl implements EventService {
             return eventMapper.toEventFullDto(event);
         }
 
+        if (eventUpdateDto.getEventDate() == null &&
+                eventUpdateDto.getDescription() == null &&
+                eventUpdateDto.getTitle() == null &&
+                eventUpdateDto.getCategory() == null &&
+                eventUpdateDto.getAnnotation() == null &&
+                eventUpdateDto.getStateAction() == null &&
+                eventUpdateDto.getPaid() == null &&
+                eventUpdateDto.getParticipantLimit() == null &&
+                eventUpdateDto.getRequestModeration() == null &&
+                eventUpdateDto.getLocation() == null) {
+            return eventMapper.toEventFullDto(event);
+        }
+
         if (eventUpdateDto.getEventDate() != null) {
             LocalDateTime newEventDate = eventUpdateDto.getEventDate();
             if (newEventDate.isBefore(LocalDateTime.now())) {

@@ -41,17 +41,4 @@ public class UpdateEventAdminRequest {
 
     @Size(min = 3, max = 120, message = "Title must be between 3 and 120 characters")
     private String title;
-
-    public boolean isEmpty() {
-        return annotation == null &&
-                description == null &&
-                title == null &&
-                category == null &&
-                eventDate == null &&
-                stateAction == null &&
-                paid == null &&
-                participantLimit == null &&
-                requestModeration == null &&
-                location == null;
-    }
 }
