@@ -7,6 +7,7 @@ import ru.practicum.errors.CommonConflictException;
 import ru.practicum.errors.CommonNotFoundException;
 import ru.practicum.events.Event;
 import ru.practicum.events.EventsRepository;
+import ru.practicum.events.Status;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.users.UserRepository;
 
@@ -68,6 +69,10 @@ public class RequestServiceImpl implements RequestService {
         newRequest.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         newRequest.setStatus(event.get().getRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
+
+        if (event.get().getState().equals(Status.PUBLISHED) && event.get().getParticipantLimit() == 0) {
+            newRequest.setStatus(RequestStatus.CONFIRMED);
+        }
 
         Request savedRequest = requestRepository.save(newRequest);
         return requestMapper.toRequestDto(savedRequest);
