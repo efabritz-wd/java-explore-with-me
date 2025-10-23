@@ -115,7 +115,6 @@ public class EventServiceImpl implements EventService {
                 event.setPublishedOn(LocalDateTime.now());
                 event.setState(Status.PUBLISHED);
             }
-
         }
 
         if (eventUpdateDto.getAnnotation() != null) {
