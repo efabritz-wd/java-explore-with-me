@@ -12,7 +12,8 @@ import java.util.Optional;
 public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByRequester(Long requester);
 
-    Optional<Request> getRequestByEventAndRequester(Long event, Long requester);
+    @Query("SELECT r FROM Request r WHERE r.event = :eventId AND r.requester = :userId")
+    Optional<Request> getRequestByEventAndRequester(@Param("eventId") Long eventId, @Param("userId") Long userId);
 
     @Query("SELECT r FROM Request r " +
             "JOIN ru.practicum.events.Event e ON r.event = e.id " +
