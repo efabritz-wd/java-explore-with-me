@@ -15,6 +15,7 @@ import ru.practicum.events.EventsRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,7 +51,13 @@ public class CategoryServiceImpl implements CategoryService {
                 new CommonNotFoundException("Category with id: "
                         + catId + " was not found"));
 
+        Optional<Category> categoryByName = categoryRepository.findByName(categoryDto.getName());
 
+        // check if category with the same name from updating object already exists in other category object,
+        // throw conflict exception
+        if (categoryByName.isPresent() && !categoryByName.get().getId().equals(catId)) {
+            throw new CommonConflictException("Category can not be update with name: " + categoryDto.getName() + ". It already exists");
+        }
         Long idFound = category.getId();
         if (!Objects.equals(idFound, catId)) {
             throw new CommonConflictException("Category with name " + categoryDto.getName() + " already exists.");
