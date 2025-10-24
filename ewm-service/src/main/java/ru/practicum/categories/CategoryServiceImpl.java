@@ -47,23 +47,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(catId).orElseThrow(() ->
-            new CommonNotFoundException("Category with id: "
-                    + catId + " was not found"));
+                new CommonNotFoundException("Category with id: "
+                        + catId + " was not found"));
 
-
-        if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
-            throw new CommonNotFoundException("Category with name: " +
-                    categoryDto.getName() + " exists");
-        }
 
         Long idFound = category.getId();
         if (!Objects.equals(idFound, catId)) {
             throw new CommonConflictException("Category with name " + categoryDto.getName() + " already exists.");
         }
 
-        Category categoryFound = categoryRepository.findById(catId).get();
-        categoryFound.setName(categoryDto.getName());
-        Category categorySaved = categoryRepository.save(categoryFound);
+        category.setName(categoryDto.getName());
+        Category categorySaved = categoryRepository.save(category);
         log.info("Category updated: " + categorySaved);
         CategoryDto categorySavedDto = categoryMapper.toCategoryDto(categorySaved);
         return categorySavedDto;
