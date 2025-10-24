@@ -125,14 +125,15 @@ class HitControllerTest {
     }
 
     @Test
-    void getStatsListWithInvalidParams() throws Exception {
-        LocalDateTime end = LocalDateTime.of(2023, 3, 3, 3, 0);
+    void getStatsListWithMissingEndDate() throws Exception {
+        LocalDateTime start = LocalDateTime.of(2035, 5, 5, 0, 0);
 
         mockMvc.perform(get("/stats")
-                        .param("end", end.format(formatter))
-                        .param("uris", "/event/1"))
-                .andExpect(status().is5xxServerError());
+                        .param("start", start.format(formatter))
+                        .param("uris", "/events"))
+                .andExpect(status().isBadRequest());
 
         verify(hitService, never()).getStats(any(), any(), any(), any());
     }
+
 }

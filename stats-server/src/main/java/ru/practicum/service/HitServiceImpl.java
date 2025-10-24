@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
 import ru.practicum.StatsDto;
-import ru.practicum.exception.ConditionsNotMetException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
@@ -39,9 +38,6 @@ public class HitServiceImpl implements HitService {
 
     @Override
     public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (start == null || end == null) {
-            throw new ConditionsNotMetException("Start or end dates are null");
-        }
         if (start.isAfter(end)) {
             throw new ValidationException("Start date should be before end date");
         }
