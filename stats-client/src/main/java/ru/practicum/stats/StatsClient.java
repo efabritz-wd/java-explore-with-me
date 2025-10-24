@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.HitDto;
 
 import ru.practicum.client.BaseClient;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,8 +19,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class StatsClient extends BaseClient {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(UtilPatterns.DATE_PATTERN);
 
     @Autowired
     public StatsClient(@Value("http://stats-server:9090") String serverUrl) {

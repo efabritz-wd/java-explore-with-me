@@ -10,18 +10,6 @@ import ru.practicum.errors.HttpErrorStatus;
 
 import java.time.LocalDateTime;
 
-/*
-*
-    private String message;
-
-    private String reason;
-
-    private HttpErrorStatus status;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timestamp;
-*
-* */
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -30,7 +18,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError compilationBadRequest(final CompilationBadRequestException e) {
         return new ApiError(
-            e.getMessage(),
+                e.getMessage(),
                 "Incorrectly made request.",
                 HttpErrorStatus.BAD_REQUEST.getName(),
                 LocalDateTime.now()

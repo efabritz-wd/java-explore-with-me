@@ -11,6 +11,7 @@ import ru.practicum.HitDto;
 import ru.practicum.StatsDto;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.service.HitService;
+import ru.practicum.utils.UtilPatterns;
 
 
 import java.nio.charset.StandardCharsets;
@@ -34,8 +35,8 @@ public class HitController {
     }
 
     @GetMapping("/stats")
-    public List<StatsDto> getStats(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+    public List<StatsDto> getStats(@RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime start,
+                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime end,
                                    @RequestParam(required = false) String uris,
                                    @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Fetching stats from {} to {}, uris: {}, unique: {}", start, end, uris, unique);

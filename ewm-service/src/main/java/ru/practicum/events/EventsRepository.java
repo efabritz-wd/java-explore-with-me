@@ -12,7 +12,7 @@ import java.util.Optional;
 
 
 public interface EventsRepository extends JpaRepository<Event, Long> {
-    Boolean existsByCategoryId(Long id);
+    boolean existsByCategoryId(Long id);
 
     @Query("SELECT e FROM Event e WHERE e.category.id = :id")
     List<Event> findAllByCategoryId(@Param("id") Long id);

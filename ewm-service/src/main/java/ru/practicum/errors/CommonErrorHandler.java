@@ -55,4 +55,15 @@ public class CommonErrorHandler {
                 LocalDateTime.now()
         );
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError commonInternalServerError(final CommonInternalServerErrorException e) {
+        return new ApiError(
+                e.getMessage(),
+                "Internal server error occurred.",
+                HttpErrorStatus.INTERNAL_SERVER_ERROR.getName(),
+                LocalDateTime.now()
+        );
+    }
 }

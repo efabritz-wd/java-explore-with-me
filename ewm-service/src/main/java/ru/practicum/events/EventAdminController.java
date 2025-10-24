@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.requests.UpdateEventAdminRequest;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +23,8 @@ public class EventAdminController {
     public List<EventFullDto> getAllFilteredEvents(@RequestParam(required = false) List<Long> users,
                                                    @RequestParam(required = false)  List<String> states,
                                                    @RequestParam(required = false)  List<Long> categories,
-                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")  LocalDateTime rangeStart,
-                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")  LocalDateTime rangeEnd,
+                                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)  LocalDateTime rangeStart,
+                                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)  LocalDateTime rangeEnd,
                                                    @RequestParam(defaultValue = "0", required = false) Integer from,
                                                    @RequestParam(defaultValue = "10", required = false) Integer size) {
         return eventService.getAllFilteredEvents(users, states, categories, rangeStart, rangeEnd, from, size);

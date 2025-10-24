@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime created;
 
     private Long event;

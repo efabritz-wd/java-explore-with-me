@@ -25,6 +25,7 @@ public class RequestServiceImpl implements RequestService {
     private final EventsRepository eventsRepository;
     private final RequestMapper requestMapper;
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getRequestsByUserId(Long userId) {
         userRepository.findById(userId).orElseThrow(

@@ -25,6 +25,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationMapper compilationMapper;
     private final EventsRepository eventsRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getPublicCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
@@ -35,6 +36,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationMapper.toCompilationsDtos(compilations);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CompilationDto getPublicCompilationById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->

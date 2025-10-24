@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.requests.RequestStatus;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class ParticipationRequestDto {
     private Long id;
     private Long event;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime created;
     private Long requester;
 

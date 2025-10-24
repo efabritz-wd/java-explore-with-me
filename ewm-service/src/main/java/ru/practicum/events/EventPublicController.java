@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +23,8 @@ public class EventPublicController {
     public List<EventShortDto> getAllPublicFilteredEvents(@RequestParam(required = false) String text,
                                                           @RequestParam(required = false) List<Long> categories,
                                                           @RequestParam(required = false) Boolean paid,
-                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                                          @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime rangeStart,
+                                                          @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime rangeEnd,
                                                           @RequestParam(defaultValue = "false", required = false) Boolean onlyAvailable,
                                                           @RequestParam(required = false) EventSort sort,
                                                           @RequestParam(defaultValue = "0", required = false) Integer from,

@@ -46,17 +46,21 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
-        if (categoryRepository.findById(catId).isEmpty()) {
-            throw new CommonNotFoundException("Category with id="
-                    + catId + " was not found");
+        Category category = categoryRepository.findById(catId).orElseThrow(() ->
+            new CommonNotFoundException("Category with id: "
+                    + catId + " was not found"));
+
+
+        if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
+            throw new CommonNotFoundException("Category with name: " +
+                    categoryDto.getName() + " exists");
         }
 
-        if (categoryRepository.existsByName(categoryDto.getName())) {
-            Long idWithName = categoryRepository.findByName(categoryDto.getName()).getId();
-            if (!Objects.equals(idWithName, catId)) {
-                throw new CommonConflictException("Category with name " + categoryDto.getName() + " already exists.");
-            }
+        Long idFound = category.getId();
+        if (!Objects.equals(idFound, catId)) {
+            throw new CommonConflictException("Category with name " + categoryDto.getName() + " already exists.");
         }
+
         Category categoryFound = categoryRepository.findById(catId).get();
         categoryFound.setName(categoryDto.getName());
         Category categorySaved = categoryRepository.save(categoryFound);
@@ -68,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long catId) {
         if (categoryRepository.findById(catId).isEmpty()) {
-            throw new CommonNotFoundException("Category with id="
+            throw new CommonNotFoundException("Category with id: "
                     + catId + " was not found");
         }
 
@@ -81,18 +85,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto getCategoryById(Long id) {
-        if (categoryRepository.findById(id).isEmpty()) {
-            throw new CommonNotFoundException("Category with id="
-                    + id + " was not found");
-        }
-        Category category = categoryRepository.findById(id).get();
+
+        Category category = categoryRepository.findById(id).orElseThrow(() ->
+                new CommonNotFoundException("Category with id: " + id + " was not found"));
         log.info("Category found: " + category);
         CategoryDto categoryDto = categoryMapper.toCategoryDto(category);
         return categoryDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getAllCategories(Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);

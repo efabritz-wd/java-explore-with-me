@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.categories.Category;
 import ru.practicum.locations.Location;
 import ru.practicum.users.User;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class Event {
     private Integer confirmedRequests;
 
     @Column(name = "created_on")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime createdOn = LocalDateTime.now();
 
     @Column(length = 7000)
@@ -63,7 +64,7 @@ public class Event {
     private Integer participantLimit = 0;
 
     @Column(name = "published_on")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")

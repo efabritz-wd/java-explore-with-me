@@ -93,12 +93,12 @@ public class CategoryServiceImplTest {
     @Test
     void updateCategory() {
         Category existingCategory = categoryRepository.findAll().get(0);
-        CategoryDto updateDto = new CategoryDto(existingCategory.getId(), "Updated Concert");
+        CategoryDto updateDto = new CategoryDto();
+        updateDto.setName("Updated Concert");
 
         CategoryDto result = categoryService.updateCategory(existingCategory.getId(), updateDto);
 
         assertNotNull(result);
-        assertEquals(updateDto.getId(), result.getId());
         assertEquals(updateDto.getName(), result.getName());
         Category updatedCategory = categoryRepository.findById(existingCategory.getId()).orElseThrow();
         assertEquals("Updated Concert", updatedCategory.getName());
@@ -110,7 +110,7 @@ public class CategoryServiceImplTest {
 
         CommonNotFoundException exception = assertThrows(CommonNotFoundException.class,
                 () -> categoryService.updateCategory(5555L, updateDto));
-        assertEquals("Category with id=5555 was not found", exception.getMessage());
+        assertEquals("Category with id: 5555 was not found", exception.getMessage());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class CategoryServiceImplTest {
 
         CommonNotFoundException exception = assertThrows(CommonNotFoundException.class,
                 () -> categoryService.deleteCategory(nonExistentId));
-        assertEquals("Category with id=999 was not found", exception.getMessage());
+        assertEquals("Category with id: 999 was not found", exception.getMessage());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class CategoryServiceImplTest {
 
         CommonNotFoundException exception = assertThrows(CommonNotFoundException.class,
                 () -> categoryService.getCategoryById(nonExistentId));
-        assertEquals("Category with id=5555 was not found", exception.getMessage());
+        assertEquals("Category with id: 5555 was not found", exception.getMessage());
     }
 
     @Test

@@ -12,6 +12,7 @@ import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.events.Status;
 import ru.practicum.locations.Location;
 import ru.practicum.users.dto.UserShortDto;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 
@@ -31,13 +32,13 @@ public class EventFullDto {
 
     private Integer confirmedRequests;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime createdOn = LocalDateTime.now();
 
     private String description;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime eventDate;
 
     @NotNull
@@ -52,7 +53,7 @@ public class EventFullDto {
     @Min(value = 0, message = "Participant limit must be 0 or greater")
     private Integer participantLimit = 0;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime publishedOn;
 
     private Boolean requestModeration = true;

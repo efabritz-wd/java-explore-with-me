@@ -2,6 +2,7 @@ package ru.practicum.errors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class ApiError {
 
     private HttpErrorStatus status;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime timestamp;
 
     private List<String> errors = new ArrayList<>();

@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.stats.StatsClient;
 import ru.practicum.users.User;
 import ru.practicum.users.UserRepository;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,6 +58,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final StatsClient statsClient;
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventFullDto> getAllFilteredEvents(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
@@ -80,11 +82,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateFilteredEvent(Long eventId, UpdateEventAdminRequest eventUpdateDto) {
-        if (eventsRepository.findById(eventId).isEmpty()) {
-            throw new CommonNotFoundException("Event for id " + eventId + " was not found");
-        }
-
-        Event event = eventsRepository.findById(eventId).get();
+        Event event = eventsRepository.findById(eventId).orElseThrow(() ->
+                new CommonNotFoundException("Event for id " + eventId + " was not found"));
 
         if (eventUpdateDto == null) {
             return eventMapper.toEventFullDto(event);
@@ -164,6 +163,7 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(eventSaved);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllPublicFilteredEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from, Integer size, HttpServletRequest request) {
         Boolean rangeQuery = false;
@@ -202,20 +202,15 @@ public class EventServiceImpl implements EventService {
             return List.of();
         }
 
-       // List<Event> eventsWithNewViews = events.stream().map(this::getStatisticAndSetView).toList();
-       // addSeveralHits(request.getRemoteAddr(), events, LocalDateTime.now());
-       // return eventMapper.toEventShortDtos(eventsWithNewViews);
         sendUrisForStatistic(request, events);
         return eventMapper.toEventShortDtos(events);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EventFullDto getPublicFilteredEventById(Long eventId, HttpServletRequest request) {
-        if (eventsRepository.findById(eventId).isEmpty()) {
-            throw new CommonNotFoundException("Event with id " + eventId + " was not found.");
-        }
-
-        Event event = eventsRepository.findById(eventId).get();
+        Event event = eventsRepository.findById(eventId).orElseThrow(() ->
+                new CommonNotFoundException("Event with id " + eventId + " was not found."));
 
         if (!event.getState().equals(Status.PUBLISHED)) {
             throw new CommonNotFoundException("Event with id " + eventId + " was not found.");
@@ -227,6 +222,7 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(event);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllUserEvents(Long userId, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
@@ -236,6 +232,7 @@ public class EventServiceImpl implements EventService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EventFullDto getEventByUserAndId(Long userId, Long eventId) {
         Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new CommonNotFoundException(
@@ -272,6 +269,7 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(savedEvent);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getParticipantRequestsByUserAndEventIds(Long userId, Long eventId) {
         List<Request> requests = requestRepository.getRequestsByEventAndRequester(eventId, userId);
@@ -284,11 +282,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEventByUserAndEventIds(Long userId, Long eventId, UpdateEventUserRequest updateEventDto) {
-        if (eventsRepository.findByIdAndInitiatorId(eventId, userId).isEmpty()) {
-            throw new CommonNotFoundException("Event with" + eventId + " was not found");
-        }
 
-        Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).get();
+        Event event = eventsRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
+                new CommonNotFoundException("Event with" + eventId + " was not found"));
 
         if (event.getPublishedOn() != null) {
             throw new CommonConflictException("Event cant be changed. Event is already published");
@@ -456,7 +452,7 @@ public class EventServiceImpl implements EventService {
 
     private void sendUriForStatistic(HttpServletRequest request, Event event) {
         LocalDateTime actualDate = LocalDateTime.now();
-        String date = actualDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String date = actualDate.format(DateTimeFormatter.ofPattern(UtilPatterns.DATE_PATTERN));
 
         HitDto hitDto = new HitDto();
         hitDto.setIp(request.getRemoteAddr());
@@ -470,7 +466,7 @@ public class EventServiceImpl implements EventService {
 
     private void sendUrisForStatistic(HttpServletRequest request, List<Event> events) {
         LocalDateTime actualDate = LocalDateTime.now();
-        String date = actualDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String date = actualDate.format(DateTimeFormatter.ofPattern(UtilPatterns.DATE_PATTERN));
 
         HitDto hitDto = new HitDto();
         hitDto.setIp(request.getRemoteAddr());
@@ -488,7 +484,7 @@ public class EventServiceImpl implements EventService {
                 .ip(ip)
                 .app("main")
                 .uri("/events/" + eventId)
-                .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .timestamp(hitTime.format(ofPattern(UtilPatterns.DATE_PATTERN)))
                 .build();
 
         log.info("HitDto added: " + hitDto);
@@ -507,7 +503,7 @@ public class EventServiceImpl implements EventService {
                 .ip(ip)
                 .app("main")
                 .uri(uriString)
-                .timestamp(hitTime.format(ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .timestamp(hitTime.format(ofPattern(UtilPatterns.DATE_PATTERN)))
                 .build();
 
         statsClient.addHit(hitDto);
