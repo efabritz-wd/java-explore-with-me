@@ -5,20 +5,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import ru.practicum.HitDto;
+
 import ru.practicum.client.BaseClient;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+
 @Slf4j
 @Service
 public class StatsClient extends BaseClient {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(UtilPatterns.DATE_PATTERN);
 
     @Autowired
-    public StatsClient(@Value("${stats-server.url}") String serverUrl) {
+    public StatsClient(@Value("http://stats-server:9090") String serverUrl) {
         super(serverUrl);
     }
 
@@ -26,11 +30,14 @@ public class StatsClient extends BaseClient {
         if (hitDto == null) {
             throw new IllegalArgumentException("HitDto cannot be null");
         }
+        log.info("HitDto recieved from main service: " + hitDto);
         return post("/hit", hitDto);
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end,
                                            String uris, boolean unique) {
+        log.info("getStas method of client called");
+        log.info("parameters: {}, {}, {}, {}", start, end, uris, unique);
 
         if (start == null || end == null) {
             throw new IllegalArgumentException("Start and end dates cannot be null");
@@ -48,11 +55,13 @@ public class StatsClient extends BaseClient {
         parameters.put("unique", unique);
 
         if (urisString.isEmpty()) {
+            log.info("/stats called with params: " + parameters);
             return get("/stats?start={start}&end={end}&unique={unique}", parameters);
         }
 
         parameters.put("uris", urisString);
 
+        log.info("/stats called with params: " + parameters);
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
 
     }

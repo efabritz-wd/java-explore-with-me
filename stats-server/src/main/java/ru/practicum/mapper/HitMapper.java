@@ -3,13 +3,14 @@ package ru.practicum.mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.HitDto;
 import ru.practicum.model.Hit;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
 public class HitMapper {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(UtilPatterns.DATE_PATTERN);
 
     public HitDto fromHitToDto(Hit hit) {
         return new HitDto(

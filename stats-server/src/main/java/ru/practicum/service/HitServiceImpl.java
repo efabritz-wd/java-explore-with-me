@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
+import ru.practicum.StatsDto;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
@@ -13,6 +14,7 @@ import ru.practicum.repository.HitRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,12 +37,24 @@ public class HitServiceImpl implements HitService {
     }
 
     @Override
-    public List<StatsProjection> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (start.isAfter(end)) {
             throw new ValidationException("Start date should be before end date");
         }
 
-        return uris.isEmpty() ? hitRepository.findHitsByTimeRange(start, end, unique) :
+        List<StatsProjection> statsList = uris.isEmpty() ? hitRepository.findHitsByTimeRange(start, end, unique) :
                 hitRepository.findHitsByTimeRangeAndUris(start, end, uris, unique);
+
+        List<StatsDto> statsDtos = statsList.stream()
+                .map(stats -> {
+                    StatsDto statsDto = new StatsDto();
+                    statsDto.setApp(stats.getApp());
+                    statsDto.setUri(stats.getUri());
+                    statsDto.setHits(Math.toIntExact(stats.getHits()));
+                    return statsDto;
+                })
+                .collect(Collectors.toList());
+
+        return statsDtos;
     }
 }

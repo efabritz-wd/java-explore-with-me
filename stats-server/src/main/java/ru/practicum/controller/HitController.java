@@ -4,11 +4,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 import ru.practicum.HitDto;
-import ru.practicum.projection.StatsProjection;
+import ru.practicum.StatsDto;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.service.HitService;
+import ru.practicum.utils.UtilPatterns;
 
 
 import java.nio.charset.StandardCharsets;
@@ -24,6 +27,7 @@ import java.util.stream.Stream;
 public class HitController {
     private final HitService hitService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
     public HitDto createHit(@Valid @RequestBody HitDto hitDto) {
         log.info("HitDto received: " + hitDto);
@@ -31,11 +35,15 @@ public class HitController {
     }
 
     @GetMapping("/stats")
-    public List<StatsProjection> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                          @RequestParam(required = false) String uris,
-                                          @RequestParam(defaultValue = "false") Boolean unique) {
+    public List<StatsDto> getStats(@RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime start,
+                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime end,
+                                   @RequestParam(required = false) String uris,
+                                   @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Fetching stats from {} to {}, uris: {}, unique: {}", start, end, uris, unique);
+
+        if (start == null || end == null) {
+            throw new ValidationException("Start or end dates are null");
+        }
 
         List<String> urisList = (uris != null) ? Stream.of(uris.split(","))
                 .map(uri -> UriUtils.decode(uri, StandardCharsets.UTF_8))

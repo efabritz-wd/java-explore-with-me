@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.HitDto;
+import ru.practicum.StatsDto;
 import ru.practicum.controller.HitController;
 import ru.practicum.projection.StatsProjection;
 import ru.practicum.service.HitService;
@@ -70,7 +71,7 @@ class HitControllerTest {
         mockMvc.perform(post("/hit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(this.hitDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(hitDto.getId()))
                 .andExpect(jsonPath("$.app").value(hitDto.getApp()))
                 .andExpect(jsonPath("$.uri").value(hitDto.getUri()))
@@ -99,7 +100,14 @@ class HitControllerTest {
         LocalDateTime end = LocalDateTime.of(2023, 11, 3, 2, 1);
         List<String> uris = List.of("/event/1", "/event/2");
 
-        List<StatsProjection> statsList = List.of(statsProjection);
+
+        StatsDto statsDto = new StatsDto();
+        statsDto.setApp(statsProjection.getApp());
+        statsDto.setUri(statsProjection.getUri());
+        statsDto.setHits(Math.toIntExact(statsProjection.getHits()));
+
+
+        List<StatsDto> statsList = List.of(statsDto);
         when(hitService.getStats(eq(start), eq(end), eq(uris), eq(true))).thenReturn(statsList);
 
 
@@ -117,14 +125,15 @@ class HitControllerTest {
     }
 
     @Test
-    void getStatsListWithInvalidParams() throws Exception {
-        LocalDateTime end = LocalDateTime.of(2023, 3, 3, 3, 0);
+    void getStatsListWithMissingEndDate() throws Exception {
+        LocalDateTime start = LocalDateTime.of(2035, 5, 5, 0, 0);
 
         mockMvc.perform(get("/stats")
-                        .param("end", end.format(formatter))
-                        .param("uris", "/event/1"))
-                .andExpect(status().is5xxServerError());
+                        .param("start", start.format(formatter))
+                        .param("uris", "/events"))
+                .andExpect(status().isBadRequest());
 
         verify(hitService, never()).getStats(any(), any(), any(), any());
     }
+
 }

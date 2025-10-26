@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import ru.practicum.HitDto;
+import ru.practicum.StatsDto;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.model.Hit;
-import ru.practicum.projection.StatsProjection;
 import ru.practicum.repository.HitRepository;
 import ru.practicum.service.HitService;
 
@@ -91,7 +91,7 @@ public class HitServiceImplTest {
         LocalDateTime end = LocalDateTime.of(2023, 1, 2, 0, 0);
         List<String> uris = List.of("/event/1", "/event/2");
 
-        List<StatsProjection> result = hitService.getStats(start, end, uris, true);
+        List<StatsDto> result = hitService.getStats(start, end, uris, true);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -104,19 +104,19 @@ public class HitServiceImplTest {
         List<String> uris = List.of("/event/1", "/event/2");
 
 
-        List<StatsProjection> result = hitService.getStats(start, end, uris, false);
+        List<StatsDto> result = hitService.getStats(start, end, uris, false);
 
         assertNotNull(result);
         assertEquals(2, result.size());
 
-        StatsProjection stats1 = result.stream()
+        StatsDto stats1 = result.stream()
                 .filter(s -> s.getUri().equals("/event/1") && s.getApp().equals("app1"))
                 .findFirst()
                 .orElse(null);
         assertNotNull(stats1, "Stats for /event/1 and app1 should exist");
         assertEquals("app1", stats1.getApp());
         assertEquals("/event/1", stats1.getUri());
-        assertEquals(3L, stats1.getHits(), "Expected 3 hits for /event/1");
+        assertEquals(3, stats1.getHits(), "Expected 3 hits for /event/1");
     }
 
     @Test
