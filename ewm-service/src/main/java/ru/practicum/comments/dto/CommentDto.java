@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class CommentDto {
     private String content;
 
     @JsonFormat
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime created;
 
     private String userName;

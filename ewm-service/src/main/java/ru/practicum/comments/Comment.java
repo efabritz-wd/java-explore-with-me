@@ -8,6 +8,7 @@ import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.events.Event;
 import ru.practicum.users.User;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class Comment {
     @Size(min = 3, max = 700)
     private String content;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN)
     private LocalDateTime created;
 
     @ManyToOne

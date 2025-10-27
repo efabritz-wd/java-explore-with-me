@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.comments.CommentService;
 import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.comments.dto.NewCommentDto;
+import ru.practicum.utils.UtilPatterns;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,8 +40,8 @@ public class CommentUserController {
 
     @GetMapping
     public List<CommentDto> getOwnCommentsByTimePeriode(@PathVariable Long userId,
-                                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                                  @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime start,
+                                                  @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime end,
                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
                                                   @RequestParam(required = false, defaultValue = "10") Integer size) {
         return commentService.getCommentsByUserAndParams(userId, start, end, from, size);

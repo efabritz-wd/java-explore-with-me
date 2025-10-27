@@ -47,6 +47,8 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommonNotFoundException("Comment was " + commentId + " not found"));
 
+        log.info("Comment found: " + comment);
+
         checkIfUserIsCommentCreator(comment, userId);
 
         return commentMapper.toCommentDto(comment);
@@ -60,6 +62,8 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommonNotFoundException("Comment was " + commentId + " not found"));
+
+        log.info("Comment found: " + comment);
 
         checkIfUserIsCommentCreator(comment, userId);
 
@@ -87,6 +91,7 @@ public class CommentServiceImpl implements CommentService {
                 .setMaxResults(size);
 
         List<Comment> results = typedQuery.getResultList();
+        log.info("Comments found: " + results);
         return commentMapper.toCommentDtos(results);
     }
 
@@ -101,7 +106,7 @@ public class CommentServiceImpl implements CommentService {
                                            Long userId,
                                            LocalDateTime start,
                                            LocalDateTime end) {
-        Predicate condition = criteriaBuilder.equal(root.get("user"), userId);
+        Predicate condition = criteriaBuilder.equal(root.get("user").get("id"), userId);
 
         if (start != null) {
             condition = criteriaBuilder.and(condition,
@@ -125,6 +130,8 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommonNotFoundException("Comment was " + commentId + " not found"));
 
+        log.info("Comment found: " + comment);
+
         checkIfUserIsCommentCreator(comment, userId);
 
         comment.setContent(newCommentDto.getContent());
@@ -145,7 +152,9 @@ public class CommentServiceImpl implements CommentService {
         comment.setCreated(LocalDateTime.now());
         comment.setUser(user);
         comment.setEvent(event);
+        log.info("Comment to be saved: " + comment);
         Comment commentSaved = commentRepository.save(comment);
+        log.info("Comment saved: " + comment);
         return commentMapper.toCommentDto(commentSaved);
     }
 
@@ -163,6 +172,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto getCommentByIdAdmin(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommonNotFoundException("Comment was " + commentId + " not found"));
+        log.info("Comment found: " + comment);
 
         return commentMapper.toCommentDto(comment);
     }
@@ -173,6 +183,7 @@ public class CommentServiceImpl implements CommentService {
                 () -> new CommonNotFoundException("Event with id: " + eventId + " was not found"));
 
         List<Comment> comments = commentRepository.findAllByEventId(eventId, of(from / size, size));
+        log.info("Comments found: " + comments);
 
         return commentMapper.toCommentDtos(comments);
     }
@@ -183,7 +194,9 @@ public class CommentServiceImpl implements CommentService {
                 () -> new CommonNotFoundException("Comment was " + commentId + " not found"));
 
         comment.setContent(newCommentDto.getContent());
+        log.info("Comment found: " + comment);
         Comment newComment = commentRepository.save(comment);
+        log.info("Comment updated: " + newComment);
 
         return commentMapper.toCommentDto(newComment);
     }
