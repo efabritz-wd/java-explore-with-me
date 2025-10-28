@@ -42,8 +42,8 @@ public class CommentUserController {
     public List<CommentDto> getOwnCommentsByTimePeriode(@PathVariable Long userId,
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime start,
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = UtilPatterns.DATE_PATTERN) LocalDateTime end,
-                                                  @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                  @RequestParam(defaultValue = "0") Integer from,
+                                                  @RequestParam(defaultValue = "10") Integer size) {
         return commentService.getCommentsByUserAndParams(userId, start, end, from, size);
     }
 
